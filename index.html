@@ -173,7 +173,7 @@
 
     .charts{
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: 1fr 1fr;
       gap:12px;
       min-height:0;
     }
@@ -431,10 +431,6 @@
             <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
           </div>
           <div class="chartbox">
-            <div class="ctitle">예치 비중 (최근)</div>
-            <div class="canvas-wrap"><canvas id="chartAlloc"></canvas></div>
-          </div>
-          <div class="chartbox" style="grid-column:1 / -1;">
             <div class="ctitle">일일 변동률</div>
             <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
           </div>
@@ -892,18 +888,6 @@ const autoDriveBootstrap = async () => {
     if (a >= 1e4)  return sign + (a/1e4).toFixed(1) + "만";
     return sign + nf.format(Math.round(a));
   };
-
-
-  const colorForKey = (key) => {
-    const s = String(key ?? "");
-    let h = 0;
-    for (let i = 0; i < s.length; i++){
-      h = (h * 31 + s.charCodeAt(i)) >>> 0;
-    }
-    const hue = h % 360;
-    return `hsl(${hue}, 72%, 52%)`;
-  };
-
   const sortEntriesAsc = (arr) => arr.slice().sort((a,b)=> (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const sortEntriesDesc = (arr) => arr.slice().sort((a,b)=> (a.date > b.date ? -1 : a.date < b.date ? 1 : 0));
 
@@ -1047,8 +1031,7 @@ const autoDriveBootstrap = async () => {
    *****************/
   let chartTotal = null;
   let chartDaily = null;
-  let chartAlloc = null;
-
+  
   const createChartsIfNeeded = () => {
     if (chartTotal) return;
 
@@ -1095,23 +1078,6 @@ const autoDriveBootstrap = async () => {
         }
       }
     });
-
-    chartAlloc = new Chart($("chartAlloc"), {
-      type: "doughnut",
-      data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: "#fff", borderWidth: 2 }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom" },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${ctx.label}: ${fmtKRW(ctx.parsed)}`
-            }
-          }
-        }
-      }
-    });
   };
 
   const updateCharts = () => {
@@ -1137,27 +1103,8 @@ const autoDriveBootstrap = async () => {
     chartDaily.data.labels = labels;
     chartDaily.data.datasets[0].data = dailyPct;
     chartDaily.update();
-
-    // Alloc: latest entry (desc)
-    const latest = sortEntriesDesc(entries)[0];
-    if (!latest) {
-      chartAlloc.data.labels = [];
-      chartAlloc.data.datasets[0].data = [];
-      chartAlloc.update();
       return;
     }
-    const agg = new Map(); // where -> krw
-    for (const h of latest.holdings){
-      const where = h.where || "미지정";
-      const krw = (h.ccy === "KRW") ? h.amount : (Number.isFinite(latest.fx) ? h.amount * latest.fx : 0);
-      agg.set(where, (agg.get(where) ?? 0) + krw);
-    }
-    const allocLabels = Array.from(agg.keys());
-    const allocValues = Array.from(agg.values());
-    chartAlloc.data.labels = allocLabels;
-    chartAlloc.data.datasets[0].data = allocValues;
-    chartAlloc.data.datasets[0].backgroundColor = allocLabels.map(colorForKey);
-    chartAlloc.update();
   };
 
   /*****************
