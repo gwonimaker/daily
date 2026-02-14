@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>투자 기록</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --panel:#ffffff;
+      --panel2:#f6f7f9;
+      --text:#0b0f19;
+      --muted:#5b6474;
+      --border:#e6e8ee;
+      --shadow: 0 10px 30px rgba(2,6,23,.08);
+      --radius:14px;
+      --ok:#0f9d58;
+      --bad:#d93025;
+    }
+    *{box-sizing:border-box}
+    html, body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      overflow:hidden;
+    }
+    .app{
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      background:var(--panel);
+      flex:0 0 auto;
+    }
+    .title{
+      font-weight:900;
+      letter-spacing:-0.2px;
+      font-size:16px;
+      margin:0;
+      white-space:nowrap;
+    }
+    .top-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    button{
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--text);
+      padding:9px 11px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:12px;
+      line-height:1;
+    }
+    button.primary{
+      background: rgba(15,157,88,.10);
+      border-color: rgba(15,157,88,.25);
+      color:#075c34;
+    }
+    button.danger{
+      background: rgba(217,48,37,.08);
+      border-color: rgba(217,48,37,.25);
+      color:#7a1711;
+    }
+    button:disabled{opacity:.55; cursor:not-allowed}
+
+    .layout{
+      flex:1 1 auto;
+      min-height:0;
+      display:grid;
+      grid-template-columns: minmax(360px, 460px) 1fr;
+      gap:12px;
+      padding:12px 16px 16px;
+    }
+    @media (max-width: 980px){
+      body{overflow:auto}
+      .app{height:auto; overflow:visible}
+      .layout{grid-template-columns:1fr; min-height:auto}
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 12px 10px;
+      border-bottom:1px solid var(--border);
+      background:var(--panel2);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:-0.2px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .card .bd{
+      padding:12px;
+      min-height:0;
+    }
+    .left .bd{overflow:auto}
+    .right .bd{overflow:hidden; display:flex; flex-direction:column; gap:12px}
+
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .field label{
+      display:block;
+      font-size:11px;
+      font-weight:800;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(15,157,88,.45);
+      box-shadow: 0 0 0 4px rgba(15,157,88,.12);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr .7fr 1fr auto;
+      gap:8px;
+      align-items:center;
+    }
+    .row + .row{margin-top:8px}
+    .row button{
+      padding:9px 10px;
+      border-radius:12px;
+    }
+    .muted{color:var(--muted)}
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .kpi{grid-template-columns:1fr}
+    }
+    .kpi .box{
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      padding:10px 10px;
+    }
+    .kpi .name{font-size:11px; font-weight:900; color:var(--muted); margin-bottom:6px}
+    .kpi .val{font-size:16px; font-weight:1000; letter-spacing:-0.3px}
+    .kpi .sub{font-size:11px; color:var(--muted); margin-top:6px}
+
+    .charts{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+      min-height:0;
+    }
+    @media (max-width: 1200px){
+      .charts{grid-template-columns:1fr}
+    }
+    .chartbox{
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      padding:10px 10px;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    .chartbox .ctitle{
+      font-size:11px;
+      font-weight:900;
+      color:var(--muted);
+      margin:0 0 8px;
+      white-space:nowrap;
+    }
+    .canvas-wrap{
+      position:relative;
+      height:260px;
+      min-height:160px;
+    }
+    @media (max-height: 760px){
+      .canvas-wrap{height:220px}
+    }
+    @media (max-height: 660px){
+      .canvas-wrap{height:180px}
+    }
+
+    .tablewrap{
+      flex:1 1 auto;
+      min-height:0;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      overflow:auto;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:900px;
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--border);
+      font-size:12px;
+      vertical-align:top;
+      background:#fff;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:var(--panel2);
+      font-weight:1000;
+      color:var(--muted);
+      text-align:left;
+      white-space:nowrap;
+    }
+    td.num, th.num{text-align:right}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:11px;
+      white-space:nowrap;
+    }
+    .pill.ok{border-color: rgba(15,157,88,.25); background: rgba(15,157,88,.08); color:#075c34}
+    .pill.bad{border-color: rgba(217,48,37,.25); background: rgba(217,48,37,.06); color:#7a1711}
+
+    details{max-width: 520px}
+    summary{cursor:pointer; font-weight:900; color:var(--text)}
+    .holdings-list{margin:8px 0 0; padding-left:16px; color:var(--muted)}
+    .holdings-list li{margin:4px 0}
+
+    .inline-actions{display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap}
+    .mini{padding:8px 10px; font-size:11px}
+
+    .total-preview{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:14px;
+      padding:10px 10px;
+    }
+    .total-preview .label{font-size:11px; font-weight:900; color:var(--muted)}
+    .total-preview .value{font-size:16px; font-weight:1000; letter-spacing:-0.2px; white-space:nowrap}
+    .total-preview .value.bad{color:var(--bad)}
+    .fxline{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .fxline input{flex:1 1 auto}
+    .fxline button{flex:0 0 auto}
+    .hidden{display:none !important}
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(2,6,23,.42);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:999;
+    }
+    .modal{
+      width:min(560px, 100%);
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .mh{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 12px;
+      border-bottom:1px solid var(--border);
+      background: var(--panel2);
+    }
+    .modal .mttl{font-weight:1000; font-size:12px; color:var(--text)}
+    .modal .mb{padding:12px}
+    .modal .mf{
+      padding:12px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      background:#fff;
+    }
+
+    .toast{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      max-width: min(420px, calc(100vw - 32px));
+      background:#0b0f19;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:12px;
+      box-shadow: 0 14px 36px rgba(2,6,23,.22);
+      z-index:1000;
+      white-space:pre-wrap;
+    }
+    .toast.ok{background: rgba(15,157,88,.92)}
+    .toast.bad{background: rgba(217,48,37,.92)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <h1 class="title">투자 기록</h1>
+    <div class="top-actions">
+      <button id="driveBtn" class="mini">Drive</button>
+      <button id="exportBtn" class="mini">내보내기</button>
+      <button id="importBtn" class="mini">가져오기</button>
+      <input id="importFile" type="file" accept=".json" class="hidden" />
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="card left">
+      <div class="hd">
+        <h2>입력</h2>
+        <div class="inline-actions">
+          <button id="prevBtn" class="mini">전일 불러오기</button>
+          <button id="resetFormBtn" class="mini">초기화</button>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="grid2">
+          <div class="field">
+            <label>날짜</label>
+            <input id="date" type="date" />
+          </div>
+          <div class="field" id="fxField">
+            <label>USDT/KRW 종가</label>
+            <div class="fxline">
+              <input id="fx" type="number" inputmode="decimal" placeholder="자동" />
+              <button id="fxBtn" class="mini">자동</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div class="muted" style="font-size:11px; font-weight:900;">예치 현황</div>
+          <button id="addHoldingBtn" class="mini">항목 추가</button>
+        </div>
+        <div id="holdings"></div>
+
+        <div class="total-preview" style="margin-top:12px;">
+          <div>
+            <div class="label">총 평가금액(KRW)</div>
+            <div class="muted" id="totalSub" style="font-size:11px; margin-top:6px;"></div>
+          </div>
+          <div id="totalPreview" class="value">—</div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="saveBtn" class="primary">저장</button>
+          <button id="cancelEditBtn" class="mini hidden">편집 취소</button>
+          <button id="clearAllBtn" class="danger">전체 삭제</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card right">
+      <div class="hd">
+        <h2>대시보드</h2>
+      </div>
+      <div class="bd">
+        <div class="kpi">
+          <div class="box">
+            <div class="name">최근 총액</div>
+            <div class="val" id="kpiTotal">—</div>
+            <div class="sub" id="kpiDate">—</div>
+          </div>
+          <div class="box">
+            <div class="name">일일 변동</div>
+            <div class="val" id="kpiDelta">—</div>
+            <div class="sub" id="kpiDeltaPct">—</div>
+          </div>
+          <div class="box">
+            <div class="name">누적 변동</div>
+            <div class="val" id="kpiCum">—</div>
+            <div class="sub" id="kpiCumPct">—</div>
+          </div>
+        </div>
+
+        <div class="charts">
+          <div class="chartbox">
+            <div class="ctitle">총액 추이 (KRW)</div>
+            <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
+          </div>
+          <div class="chartbox">
+            <div class="ctitle">예치 비중 (최근)</div>
+            <div class="canvas-wrap"><canvas id="chartAlloc"></canvas></div>
+          </div>
+          <div class="chartbox" style="grid-column:1 / -1;">
+            <div class="ctitle">일일 변동률</div>
+            <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
+          </div>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px;">날짜</th>
+                <th class="num" style="width:140px;">총액(KRW)</th>
+                <th class="num" style="width:140px;">일일 변동</th>
+                <th class="num" style="width:120px;">일일 변동률</th>
+                <th class="num" style="width:120px;">누적 변동률</th>
+                <th class="num" style="width:120px;">USDT/KRW</th>
+                <th>예치 현황</th>
+                <th class="num" style="width:160px;">관리</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="8" class="muted">데이터 없음</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="driveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Google Drive">
+  <div class="modal">
+    <div class="mh">
+      <div class="mttl">Google Drive</div>
+      <button id="driveCloseBtn" class="mini">닫기</button>
+    </div>
+    <div class="mb">
+      <div class="field">
+        <label>OAuth Client ID</label>
+        <input id="driveClientId" type="text" placeholder="xxxx.apps.googleusercontent.com" />
+      </div>
+      <div id="driveStatus" class="muted" style="font-size:11px; font-weight:900; margin-top:10px;">—</div>
+    </div>
+    <div class="mf">
+      <button id="driveConnectBtn" class="primary mini">연결</button>
+      <button id="driveLoadBtn" class="mini">불러오기</button>
+      <button id="driveSaveBtn" class="mini">Drive 저장</button>
+      <button id="driveDisconnectBtn" class="mini danger">연결 해제</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  /*****************
+   * Storage
+   *****************/
+  const STORAGE_KEY_V4 = "investTrackerData.v4";
+  const LEGACY_KEYS = ["investTrackerData.v3", "investTrackerData.v2", "investTrackerData.v1"];
+
+  /*****************
+   * State
+   *****************/
+  /**
+   * Entry(v4)
+   * {
+   *   date: "YYYY-MM-DD",
+   *   fx: number|null, // KRW per 1 USDT (only if needed)
+   *   holdings: Array<{ where: string, ccy: "KRW"|"USDT", amount: number }>,
+   *   totalKrw: number
+   * }
+   */
+  let entries = [];
+  let editDate = null;
+  let fxCache = {}; // {"YYYY-MM-DD": number}
+
+  /*****************
+   * Drive Sync (optional)
+   *****************/
+  const DRIVE_KEY = "investTrackerDrive.v1";
+  const DRIVE_FILE_NAME = "invest-tracker.json";
+  const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+
+  let driveCfg = { clientId: "", fileId: "", enabled: false };
+  let driveAccessToken = null;
+  let driveTokenExpiresAt = 0;
+  let driveTokenClient = null;
+
+
+  /*****************
+   * Utils
+   *****************/
+  const $ = (id) => document.getElementById(id);
+
+  const toast = (msg, kind="ok", ms=2200) => {
+    const el = $("toast");
+    if (!el) return;
+    el.textContent = String(msg ?? "");
+    el.classList.remove("hidden", "ok", "bad");
+    el.classList.add(kind === "bad" ? "bad" : "ok");
+    window.clearTimeout(toast._t);
+    toast._t = window.setTimeout(() => {
+      el.classList.add("hidden");
+    }, ms);
+  };
+
+
+  const loadDriveCfg = () => {
+    try{
+      const raw = localStorage.getItem(DRIVE_KEY);
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      driveCfg = {
+        clientId: String(obj?.clientId ?? "").trim(),
+        fileId: String(obj?.fileId ?? "").trim(),
+        enabled: Boolean(obj?.enabled),
+      };
+    }catch(_){}
+  };
+
+  const saveDriveCfg = () => {
+    try{
+      localStorage.setItem(DRIVE_KEY, JSON.stringify(driveCfg));
+    }catch(_){}
+  };
+
+  const driveStatusText = () => {
+    if (!driveCfg.clientId) return "미설정";
+    if (!driveCfg.enabled) return "설정됨";
+    if (driveAccessToken && Date.now() < driveTokenExpiresAt - 30_000) return "연결됨";
+    return "연결 필요";
+  };
+
+  const refreshDriveUI = () => {
+    const inp = $("driveClientId");
+    if (inp && inp.value.trim() !== driveCfg.clientId) inp.value = driveCfg.clientId;
+
+    const st = $("driveStatus");
+    if (st){
+      const fid = driveCfg.fileId ? ` · 파일: ${driveCfg.fileId.slice(0,6)}…` : "";
+      st.textContent = `상태: ${driveStatusText()}${fid}`;
+    }
+  };
+
+  const openDriveModal = () => {
+    $("driveModal")?.classList.remove("hidden");
+    refreshDriveUI();
+  };
+  const closeDriveModal = () => $("driveModal")?.classList.add("hidden");
+
+  const waitForGIS = () => new Promise((resolve, reject) => {
+    let tries = 0;
+    const tick = () => {
+      if (window.google?.accounts?.oauth2?.initTokenClient) return resolve();
+      tries++;
+      if (tries > 200) return reject(new Error("Google 인증 라이브러리 로드 실패"));
+      setTimeout(tick, 50);
+    };
+    tick();
+  });
+
+  const ensureTokenClient = async () => {
+    await waitForGIS();
+    if (!driveCfg.clientId) throw new Error("OAuth Client ID 필요");
+    if (!driveTokenClient || driveTokenClient.__cid !== driveCfg.clientId){
+      driveTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: driveCfg.clientId,
+        scope: DRIVE_SCOPE,
+        callback: () => {}
+      });
+      driveTokenClient.__cid = driveCfg.clientId;
+    }
+  };
+
+  const requestDriveToken = async () => {
+    await ensureTokenClient();
+
+    const attempt = (prompt) => new Promise((resolve, reject) => {
+      driveTokenClient.callback = (resp) => {
+        if (resp && resp.access_token) return resolve(resp);
+        reject(new Error(resp?.error || "인증 실패"));
+      };
+      try{
+        driveTokenClient.requestAccessToken({ prompt });
+      }catch(e){
+        reject(e);
+      }
+    });
+
+    let resp;
+    try{
+      resp = await attempt("");
+    }catch(_){
+      resp = await attempt("consent");
+    }
+
+    driveAccessToken = resp.access_token;
+    driveTokenExpiresAt = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+    driveCfg.enabled = true;
+    saveDriveCfg();
+    refreshDriveUI();
+  };
+
+  const ensureDriveToken = async () => {
+    if (!driveCfg.enabled) throw new Error("Drive 미연결");
+    if (!driveCfg.clientId) throw new Error("OAuth Client ID 필요");
+    if (driveAccessToken && Date.now() < driveTokenExpiresAt - 30_000) return driveAccessToken;
+    await requestDriveToken();
+    return driveAccessToken;
+  };
+
+  const driveFetch = async (url, opts = {}, retry = true) => {
+    const token = await ensureDriveToken();
+    const headers = new Headers(opts.headers || {});
+    headers.set("Authorization", `Bearer ${token}`);
+    const res = await fetch(url, { ...opts, headers });
+    if (res.status === 401 && retry){
+      driveAccessToken = null;
+      driveTokenExpiresAt = 0;
+      return driveFetch(url, opts, false);
+    }
+    return res;
+  };
+
+  const driveFindLatestFileId = async () => {
+    const q = `name='${DRIVE_FILE_NAME}' and trashed=false`;
+    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&pageSize=5&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc`;
+    const res = await driveFetch(url, { method: "GET" });
+    if (!res.ok) throw new Error(`Drive 조회 실패 (HTTP ${res.status})`);
+    const data = await res.json();
+    const f = data?.files?.[0];
+    return f?.id ? String(f.id) : "";
+  };
+
+  const driveCreateFile = async (contentStr) => {
+    const boundary = "-------" + Math.random().toString(16).slice(2);
+    const metadata = { name: DRIVE_FILE_NAME, mimeType: "application/json" };
+    const multipart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${contentStr}\r\n--${boundary}--`;
+    const url = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime";
+    const res = await driveFetch(url, {
+      method: "POST",
+      headers: { "Content-Type": `multipart/related; boundary=${boundary}` },
+      body: multipart
+    });
+    if (!res.ok) throw new Error(`Drive 생성 실패 (HTTP ${res.status})`);
+    return await res.json();
+  };
+
+  const driveUpdateFile = async (fileId, contentStr) => {
+    const url = `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`;
+    const res = await driveFetch(url, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: contentStr
+    });
+    if (!res.ok) throw new Error(`Drive 저장 실패 (HTTP ${res.status})`);
+    try{ return await res.json(); }catch(_){ return {}; }
+  };
+
+  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache });
+
+  const driveUploadLocal = async (silent=false) => {
+    if (!driveCfg.enabled) return false;
+    try{
+      const contentStr = JSON.stringify(buildDrivePayload());
+      let fileId = driveCfg.fileId;
+
+      if (!fileId) fileId = await driveFindLatestFileId();
+
+      if (fileId){
+        await driveUpdateFile(fileId, contentStr);
+        driveCfg.fileId = fileId;
+      } else {
+        const created = await driveCreateFile(contentStr);
+        driveCfg.fileId = String(created?.id ?? "");
+      }
+
+      saveDriveCfg();
+      refreshDriveUI();
+      if (!silent) toast("Drive 저장 완료", "ok");
+      return true;
+    }catch(err){
+      toast(err?.message ?? "Drive 저장 실패", "bad", 2600);
+      return false;
+    }
+  };
+
+  const driveDownloadObject = async () => {
+    if (!driveCfg.enabled) throw new Error("Drive 미연결");
+    let fileId = driveCfg.fileId;
+    if (!fileId) fileId = await driveFindLatestFileId();
+    if (!fileId) throw new Error("Drive 파일 없음");
+
+    const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`;
+    const res = await driveFetch(url, { method: "GET" });
+    if (!res.ok) throw new Error(`Drive 불러오기 실패 (HTTP ${res.status})`);
+    const obj = await res.json();
+
+    driveCfg.fileId = fileId;
+    saveDriveCfg();
+    refreshDriveUI();
+    return obj;
+  };
+
+  const bindDriveUI = () => {
+    $("driveBtn")?.addEventListener("click", openDriveModal);
+    $("driveCloseBtn")?.addEventListener("click", closeDriveModal);
+    $("driveModal")?.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "driveModal") closeDriveModal();
+    });
+
+    $("driveClientId")?.addEventListener("change", () => {
+      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
+      saveDriveCfg();
+      refreshDriveUI();
+    });
+
+    $("driveConnectBtn")?.addEventListener("click", async () => {
+      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
+      if (!driveCfg.clientId){
+        toast("OAuth Client ID 필요", "bad");
+        return;
+      }
+      saveDriveCfg();
+      try{
+        await requestDriveToken();
+        toast("Drive 연결됨", "ok");
+      }catch(err){
+        toast(err?.message ?? "Drive 연결 실패", "bad", 2600);
+      }
+    });
+
+    $("driveDisconnectBtn")?.addEventListener("click", async () => {
+      try{
+        await waitForGIS();
+        if (driveAccessToken && window.google?.accounts?.oauth2?.revoke){
+          google.accounts.oauth2.revoke(driveAccessToken, () => {});
+        }
+      }catch(_){}
+      driveAccessToken = null;
+      driveTokenExpiresAt = 0;
+      driveCfg.enabled = false;
+      saveDriveCfg();
+      refreshDriveUI();
+      toast("Drive 연결 해제", "ok");
+    });
+
+    $("driveSaveBtn")?.addEventListener("click", async () => {
+      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
+      saveDriveCfg();
+      await driveUploadLocal(false);
+    });
+
+    $("driveLoadBtn")?.addEventListener("click", async () => {
+      try{
+        const obj = await driveDownloadObject();
+        importFromObject(obj);
+        toast("Drive 불러오기 완료", "ok");
+        closeDriveModal();
+      }catch(err){
+        toast(err?.message ?? "Drive 불러오기 실패", "bad", 2600);
+      }
+    });
+  };
+
+  const nf = new Intl.NumberFormat("ko-KR");
+  const fmtKRW = (n) => (Number.isFinite(n) ? `${nf.format(Math.round(n))}원` : "—");
+  const fmtFX = (n) => (Number.isFinite(n) ? nf.format(n) : "—");
+  const fmtPct = (p) => (Number.isFinite(p) ? `${(p*100).toFixed(2)}%` : "—");
+  const parseNum = (v) => {
+    const n = Number(String(v ?? "").replaceAll(",", "").trim());
+    return Number.isFinite(n) ? n : NaN;
+  };
+  const clampStr = (s, max=120) => {
+    const t = String(s ?? "").trim();
+    return t.length > max ? t.slice(0, max) : t;
+  };
+  const kstTodayStr = () => {
+    // For input default; acceptable without perfect KST conversion here.
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const addDays = (yyyyMmDd, days) => {
+    const [y,m,d] = yyyyMmDd.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, (m-1), d));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    const yy = dt.getUTCFullYear();
+    const mm = String(dt.getUTCMonth()+1).padStart(2,'0');
+    const dd = String(dt.getUTCDate()).padStart(2,'0');
+    return `${yy}-${mm}-${dd}`;
+  };
+
+  const shortKRW = (n) => {
+    if (!Number.isFinite(n)) return "";
+    const a = Math.abs(n);
+    const sign = n < 0 ? "-" : "";
+    if (a >= 1e12) return sign + (a/1e12).toFixed(1) + "조";
+    if (a >= 1e8)  return sign + (a/1e8).toFixed(1) + "억";
+    if (a >= 1e4)  return sign + (a/1e4).toFixed(1) + "만";
+    return sign + nf.format(Math.round(a));
+  };
+
+
+  const colorForKey = (key) => {
+    const s = String(key ?? "");
+    let h = 0;
+    for (let i = 0; i < s.length; i++){
+      h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    }
+    const hue = h % 360;
+    return `hsl(${hue}, 72%, 52%)`;
+  };
+
+  const sortEntriesAsc = (arr) => arr.slice().sort((a,b)=> (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const sortEntriesDesc = (arr) => arr.slice().sort((a,b)=> (a.date > b.date ? -1 : a.date < b.date ? 1 : 0));
+
+  /*****************
+   * FX (Upbit USDT/KRW close)
+   *****************/
+  const getUpbitUsdtKrwClose = async (dateStr) => {
+    const toDate = addDays(dateStr, 1);
+    const to = `${toDate}T00:00:00+09:00`;
+    const url = `https://api.upbit.com/v1/candles/days?market=KRW-USDT&to=${encodeURIComponent(to)}&count=1`;
+    const res = await fetch(url, { method: "GET", cache: "no-store" });
+    if (!res.ok) throw new Error(`환율 조회 실패 (HTTP ${res.status})`);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) throw new Error("환율 데이터 없음");
+    const fx = Number(data[0]?.trade_price);
+    if (!Number.isFinite(fx) || fx <= 0) throw new Error("환율 파싱 실패");
+    return fx;
+  };
+
+  const holdingsNeedFx = (holdings) => holdings.some(h => h.ccy === "USDT" && Number.isFinite(h.amount) && h.amount !== 0);
+
+  /*****************
+   * DOM: Holdings rows
+   *****************/
+  const holdingsEl = $("holdings");
+
+  const holdingRowTemplate = (h = {}) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <input class="where" type="text" placeholder="예치처" value="${escapeHtml(h.where ?? "")}">
+      <select class="ccy">
+        <option value="KRW">KRW</option>
+        <option value="USDT">USDT</option>
+      </select>
+      <input class="amt" type="number" inputmode="decimal" placeholder="금액" value="${Number.isFinite(h.amount) ? String(h.amount) : (h.amount ?? "")}">
+      <button class="mini danger rm" title="삭제">삭제</button>
+    `;
+    row.querySelector(".ccy").value = (h.ccy === "USDT" ? "USDT" : "KRW");
+
+    const onChange = () => {
+      updateFxVisibility();
+      updateTotalPreview();
+    };
+    row.querySelector(".where").addEventListener("input", onChange);
+    row.querySelector(".ccy").addEventListener("change", onChange);
+    row.querySelector(".amt").addEventListener("input", onChange);
+    row.querySelector(".rm").addEventListener("click", () => {
+      row.remove();
+      updateFxVisibility();
+      updateTotalPreview();
+    });
+    return row;
+  };
+
+  const escapeHtml = (s) => String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+  const getHoldingsFromUI = () => {
+    const rows = Array.from(holdingsEl.querySelectorAll(".row"));
+    const holdings = [];
+    for (const r of rows) {
+      const where = clampStr(r.querySelector(".where").value || "미지정", 60);
+      const ccy = r.querySelector(".ccy").value === "USDT" ? "USDT" : "KRW";
+      const amt = parseNum(r.querySelector(".amt").value);
+      if (!Number.isFinite(amt) || amt === 0) continue;
+      holdings.push({ where, ccy, amount: amt });
+    }
+    return holdings;
+  };
+
+  const setHoldingsToUI = (holdings) => {
+    holdingsEl.innerHTML = "";
+    (holdings?.length ? holdings : [{where:"", ccy:"KRW", amount:""}]).forEach(h => holdingsEl.appendChild(holdingRowTemplate(h)));
+    updateFxVisibility();
+    updateTotalPreview();
+  };
+
+  const uiHasUsdtRow = () => {
+    return Array.from(holdingsEl.querySelectorAll(".row .ccy"))
+      .some(sel => (sel.value === "USDT"));
+  };
+
+  const updateFxVisibility = () => {
+    const need = uiHasUsdtRow();
+    $("fxField").classList.toggle("hidden", !need);
+    if (!need) $("fx").value = "";
+  };
+
+  /*****************
+   * Compute total
+   *****************/
+  const computeTotalKrw = (holdings, fx) => {
+    let sum = 0;
+    for (const h of holdings) {
+      if (h.ccy === "KRW") sum += h.amount;
+      else if (h.ccy === "USDT") {
+        if (!Number.isFinite(fx) || fx <= 0) return NaN;
+        sum += h.amount * fx;
+      }
+    }
+    return sum;
+  };
+
+  const updateTotalPreview = () => {
+    const dateStr = $("date").value;
+    const holdings = getHoldingsFromUI();
+    const needFx = holdingsNeedFx(holdings);
+    const fxInput = parseNum($("fx").value);
+    const fx = needFx ? (Number.isFinite(fxInput) ? fxInput : (fxCache[dateStr] ?? NaN)) : 1;
+
+    const total = computeTotalKrw(holdings, fx);
+    const el = $("totalPreview");
+    const sub = $("totalSub");
+
+    if (!holdings.length) {
+      el.textContent = "—";
+      el.classList.remove("bad");
+      sub.textContent = "";
+      return;
+    }
+    if (needFx && !Number.isFinite(fx)) {
+      el.textContent = "환율 필요";
+      el.classList.add("bad");
+      sub.textContent = dateStr ? "USDT 포함" : "날짜 선택";
+      return;
+    }
+    el.textContent = fmtKRW(total);
+    el.classList.remove("bad");
+
+    if (needFx) sub.textContent = `USDT/KRW: ${fmtFX(fx)}`;
+    else sub.textContent = "";
+  };
+
+  /*****************
+   * Charts (create once)
+   *****************/
+  let chartTotal = null;
+  let chartDaily = null;
+  let chartAlloc = null;
+
+  const createChartsIfNeeded = () => {
+    if (chartTotal) return;
+
+    Chart.defaults.animation = false;
+
+    chartTotal = new Chart($("chartTotal"), {
+      type: "line",
+      data: { labels: [], datasets: [{ label: "총액", data: [], tension: 0.25, pointRadius: 2 }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${fmtKRW(ctx.parsed.y)}`
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true } },
+          y: { ticks: { callback: (v) => shortKRW(v) } }
+        }
+      }
+    });
+
+    chartDaily = new Chart($("chartDaily"), {
+      type: "line",
+      data: { labels: [], datasets: [{ label: "일일 변동률", data: [], tension: 0.25, pointRadius: 2 }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${fmtPct(ctx.parsed.y)}`
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true } },
+          y: { ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
+        }
+      }
+    });
+
+    chartAlloc = new Chart($("chartAlloc"), {
+      type: "doughnut",
+      data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderColor: "#fff", borderWidth: 2 }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.label}: ${fmtKRW(ctx.parsed)}`
+            }
+          }
+        }
+      }
+    });
+  };
+
+  const updateCharts = () => {
+    createChartsIfNeeded();
+    const asc = sortEntriesAsc(entries);
+    const labels = asc.map(e => e.date);
+    const totals = asc.map(e => e.totalKrw);
+
+    const dailyPct = [];
+    for (let i=0;i<asc.length;i++){
+      if (i===0) dailyPct.push(null);
+      else{
+        const prev = asc[i-1].totalKrw;
+        const cur = asc[i].totalKrw;
+        dailyPct.push(prev ? (cur/prev - 1) : null);
+      }
+    }
+
+    chartTotal.data.labels = labels;
+    chartTotal.data.datasets[0].data = totals;
+    chartTotal.update();
+
+    chartDaily.data.labels = labels;
+    chartDaily.data.datasets[0].data = dailyPct;
+    chartDaily.update();
+
+    // Alloc: latest entry (desc)
+    const latest = sortEntriesDesc(entries)[0];
+    if (!latest) {
+      chartAlloc.data.labels = [];
+      chartAlloc.data.datasets[0].data = [];
+      chartAlloc.update();
+      return;
+    }
+    const agg = new Map(); // where -> krw
+    for (const h of latest.holdings){
+      const where = h.where || "미지정";
+      const krw = (h.ccy === "KRW") ? h.amount : (Number.isFinite(latest.fx) ? h.amount * latest.fx : 0);
+      agg.set(where, (agg.get(where) ?? 0) + krw);
+    }
+    const allocLabels = Array.from(agg.keys());
+    const allocValues = Array.from(agg.values());
+    chartAlloc.data.labels = allocLabels;
+    chartAlloc.data.datasets[0].data = allocValues;
+    chartAlloc.data.datasets[0].backgroundColor = allocLabels.map(colorForKey);
+    chartAlloc.update();
+  };
+
+  /*****************
+   * Render table + KPIs
+   *****************/
+  const render = () => {
+    updateKpis();
+    renderTable();
+    updateCharts();
+  };
+
+  const updateKpis = () => {
+    const asc = sortEntriesAsc(entries);
+    const latest = asc[asc.length-1];
+    const first = asc[0];
+
+    if (!latest){
+      $("kpiTotal").textContent = "—";
+      $("kpiDate").textContent = "—";
+      $("kpiDelta").textContent = "—";
+      $("kpiDeltaPct").textContent = "—";
+      $("kpiCum").textContent = "—";
+      $("kpiCumPct").textContent = "—";
+      return;
+    }
+
+    $("kpiTotal").textContent = fmtKRW(latest.totalKrw);
+    $("kpiDate").textContent = latest.date;
+
+    if (asc.length >= 2){
+      const prev = asc[asc.length-2];
+      const delta = latest.totalKrw - prev.totalKrw;
+      const pct = prev.totalKrw ? delta / prev.totalKrw : NaN;
+
+      $("kpiDelta").textContent = (delta>=0 ? "+" : "") + fmtKRW(delta).replace("원","") + "원";
+      $("kpiDeltaPct").textContent = fmtPct(pct);
+
+      $("kpiDelta").style.color = delta >= 0 ? "var(--ok)" : "var(--bad)";
+      $("kpiDeltaPct").style.color = delta >= 0 ? "var(--ok)" : "var(--bad)";
+    } else {
+      $("kpiDelta").textContent = "—";
+      $("kpiDeltaPct").textContent = "—";
+      $("kpiDelta").style.color = "";
+      $("kpiDeltaPct").style.color = "";
+    }
+
+    const cum = latest.totalKrw - first.totalKrw;
+    const cumPct = first.totalKrw ? cum / first.totalKrw : NaN;
+    $("kpiCum").textContent = (cum>=0 ? "+" : "") + fmtKRW(cum).replace("원","") + "원";
+    $("kpiCumPct").textContent = fmtPct(cumPct);
+    $("kpiCum").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
+    $("kpiCumPct").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
+  };
+
+  const renderTable = () => {
+    const tb = $("tbody");
+    const asc = sortEntriesAsc(entries);
+    const desc = sortEntriesDesc(entries);
+
+    if (!desc.length){
+      tb.innerHTML = `<tr><td colspan="8" class="muted">데이터 없음</td></tr>`;
+      return;
+    }
+
+    const firstTotal = asc[0].totalKrw;
+
+    const byDatePrev = new Map();
+    for (let i=0;i<asc.length;i++){
+      byDatePrev.set(asc[i].date, i>0 ? asc[i-1] : null);
+    }
+
+    tb.innerHTML = "";
+    for (const e of desc){
+      const prev = byDatePrev.get(e.date);
+      const delta = prev ? (e.totalKrw - prev.totalKrw) : NaN;
+      const deltaPct = prev && prev.totalKrw ? delta / prev.totalKrw : NaN;
+      const cumPct = firstTotal ? (e.totalKrw / firstTotal - 1) : NaN;
+
+      const fxTxt = (Number.isFinite(e.fx) ? fmtFX(e.fx) : "—");
+
+      const holdingsDetails = buildHoldingsDetails(e);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="pill">${e.date}</span></td>
+        <td class="num">${fmtKRW(e.totalKrw)}</td>
+        <td class="num">${Number.isFinite(delta) ? `${delta>=0?"+":""}${fmtKRW(delta).replace("원","")}원` : "—"}</td>
+        <td class="num">${fmtPct(deltaPct)}</td>
+        <td class="num">${fmtPct(cumPct)}</td>
+        <td class="num">${fxTxt}</td>
+        <td>${holdingsDetails}</td>
+        <td class="num">
+          <div class="inline-actions">
+            <button class="mini" data-act="edit" data-date="${e.date}">편집</button>
+            <button class="mini danger" data-act="del" data-date="${e.date}">삭제</button>
+          </div>
+        </td>
+      `;
+      // colorize delta
+      const deltaCell = tr.children[2];
+      const pctCell = tr.children[3];
+      if (Number.isFinite(delta)){
+        const good = delta >= 0;
+        deltaCell.style.color = good ? "var(--ok)" : "var(--bad)";
+        pctCell.style.color = good ? "var(--ok)" : "var(--bad)";
+      }
+
+      tr.querySelector('[data-act="edit"]').addEventListener("click", () => startEdit(e.date));
+      tr.querySelector('[data-act="del"]').addEventListener("click", () => deleteEntry(e.date));
+      tb.appendChild(tr);
+    }
+  };
+
+  const buildHoldingsDetails = (entry) => {
+    const n = entry.holdings?.length ?? 0;
+    if (!n) return `<span class="muted">—</span>`;
+    const lines = entry.holdings.map(h => {
+      const where = escapeHtml(h.where || "미지정");
+      const amt = Number.isFinite(h.amount) ? h.amount : 0;
+      if (h.ccy === "KRW"){
+        return `<li>${where}: ${escapeHtml(nf.format(amt))} KRW</li>`;
+      }
+      const krw = Number.isFinite(entry.fx) ? (amt * entry.fx) : NaN;
+      const krwTxt = Number.isFinite(krw) ? ` (≈ ${escapeHtml(nf.format(Math.round(krw)))} KRW)` : "";
+      return `<li>${where}: ${escapeHtml(nf.format(amt))} USDT${krwTxt}</li>`;
+    }).join("");
+
+    return `
+      <details>
+        <summary>${n}개 항목</summary>
+        <ul class="holdings-list">${lines}</ul>
+      </details>
+    `;
+  };
+
+  /*****************
+   * CRUD
+   *****************/
+  const upsertEntry = (entry) => {
+    const idx = entries.findIndex(e => e.date === entry.date);
+    if (idx >= 0) entries[idx] = entry;
+    else entries.push(entry);
+    entries = sortEntriesAsc(entries);
+  };
+
+  const deleteEntry = (dateStr) => {
+    if (!confirm(`${dateStr} 기록을 삭제할까요?`)) return;
+    entries = entries.filter(e => e.date !== dateStr);
+    if (editDate === dateStr) resetForm();
+    save();
+    render();
+  };
+
+  const startEdit = (dateStr) => {
+    const e = entries.find(x => x.date === dateStr);
+    if (!e) return;
+    editDate = dateStr;
+    $("date").value = e.date;
+    $("date").disabled = true;
+    $("fx").value = Number.isFinite(e.fx) ? String(e.fx) : "";
+    setHoldingsToUI(e.holdings);
+    $("cancelEditBtn").classList.remove("hidden");
+    $("saveBtn").textContent = "수정 저장";
+    updateTotalPreview();
+  };
+
+  const resetForm = () => {
+    editDate = null;
+    $("date").disabled = false;
+    $("date").value = kstTodayStr();
+    $("fx").value = "";
+    setHoldingsToUI([{where:"", ccy:"KRW", amount:""}]);
+    $("cancelEditBtn").classList.add("hidden");
+    $("saveBtn").textContent = "저장";
+    updateTotalPreview();
+  };
+
+  const buildEntryFromForm = async () => {
+    const dateStr = $("date").value;
+    if (!dateStr) throw new Error("날짜가 필요합니다.");
+
+    const holdings = getHoldingsFromUI();
+    if (!holdings.length) throw new Error("예치 현황이 비어있습니다.");
+
+    const needFx = holdingsNeedFx(holdings);
+    let fx = null;
+
+    if (needFx){
+      const fxManual = parseNum($("fx").value);
+      if (Number.isFinite(fxManual) && fxManual > 0){
+        fx = fxManual;
+      } else if (Number.isFinite(fxCache[dateStr])) {
+        fx = fxCache[dateStr];
+      } else {
+        fx = await getUpbitUsdtKrwClose(dateStr);
+      }
+      fxCache[dateStr] = fx;
+      $("fx").value = String(fx);
+    }
+
+    const totalKrw = computeTotalKrw(holdings, needFx ? fx : 1);
+    if (!Number.isFinite(totalKrw)) throw new Error("총액 계산 실패");
+    return { date: dateStr, fx: needFx ? fx : null, holdings, totalKrw };
+  };
+
+  /*****************
+   * Persistence + Migration
+   *****************/
+  const save = () => {
+    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache };
+    localStorage.setItem(STORAGE_KEY_V4, JSON.stringify(payload));
+  };
+
+  const tryLoadV4 = () => {
+    const raw = localStorage.getItem(STORAGE_KEY_V4);
+    if (!raw) return false;
+    try{
+      const obj = JSON.parse(raw);
+      if (!obj || !Array.isArray(obj.entries)) return false;
+      entries = obj.entries.filter(e => e && typeof e.date === "string")
+        .map(e => ({
+          date: e.date,
+          fx: Number.isFinite(Number(e.fx)) ? Number(e.fx) : null,
+          holdings: Array.isArray(e.holdings) ? e.holdings.map(h => ({
+            where: clampStr(h?.where ?? "미지정", 60),
+            ccy: h?.ccy === "USDT" ? "USDT" : "KRW",
+            amount: Number(h?.amount)
+          })).filter(h => Number.isFinite(h.amount) && h.amount !== 0) : [],
+          totalKrw: Number(e.totalKrw)
+        }))
+        .filter(e => e.holdings.length && Number.isFinite(e.totalKrw));
+      fxCache = (obj.fxCache && typeof obj.fxCache === "object") ? obj.fxCache : {};
+      entries = sortEntriesAsc(entries);
+      return true;
+    }catch(_){
+      return false;
+    }
+  };
+
+  const migrateLegacy = () => {
+    // Best-effort: v3 allocations -> holdings; if none, value -> single holding
+    for (const k of LEGACY_KEYS){
+      const raw = localStorage.getItem(k);
+      if (!raw) continue;
+      try{
+        const obj = JSON.parse(raw);
+        if (!obj || !Array.isArray(obj.entries)) continue;
+
+        const migrated = [];
+        const newFxCache = {};
+
+        for (const e of obj.entries){
+          if (!e || typeof e.date !== "string") continue;
+          const date = e.date;
+
+          const currency = (e.currency === "USDT" ? "USDT" : "KRW");
+          const fx = Number.isFinite(Number(e.fx)) ? Number(e.fx) : null;
+
+          const allocs = Array.isArray(e.allocations) ? e.allocations : [];
+          let holdings = [];
+          if (allocs.length){
+            holdings = allocs.map(a => ({
+              where: clampStr(a?.where ?? "미지정", 60),
+              ccy: currency,
+              amount: Number(a?.amount)
+            })).filter(h => Number.isFinite(h.amount) && h.amount !== 0);
+          } else {
+            // fallback: use value as single holding
+            const val = Number(e.value);
+            if (Number.isFinite(val) && val !== 0){
+              holdings = [{ where: "미지정", ccy: currency, amount: val }];
+            }
+          }
+          if (!holdings.length) continue;
+
+          const needFx = holdingsNeedFx(holdings);
+          const useFx = needFx ? (Number.isFinite(fx) ? fx : null) : null;
+
+          const totalKrw = computeTotalKrw(holdings, needFx ? useFx : 1);
+          if (!Number.isFinite(totalKrw)) {
+            // If USDT but fx missing, skip for now; user can re-enter.
+            continue;
+          }
+          migrated.push({ date, fx: needFx ? useFx : null, holdings, totalKrw });
+          if (needFx && Number.isFinite(useFx)) newFxCache[date] = useFx;
+        }
+
+        if (migrated.length){
+          entries = sortEntriesAsc(migrated);
+          fxCache = newFxCache;
+          save();
+          return true;
+        }
+      }catch(_){}
+    }
+    return false;
+  };
+
+  /*****************
+   * Handlers
+   *****************/
+  $("addHoldingBtn").addEventListener("click", () => {
+    holdingsEl.appendChild(holdingRowTemplate({}));
+    updateFxVisibility();
+    updateTotalPreview();
+  });
+
+  $("fxBtn").addEventListener("click", async () => {
+    const dateStr = $("date").value;
+    if (!dateStr) return;
+    try{
+      $("fxBtn").disabled = true;
+      const fx = await getUpbitUsdtKrwClose(dateStr);
+      fxCache[dateStr] = fx;
+      $("fx").value = String(fx);
+      updateTotalPreview();
+    }catch(err){
+      alert(err?.message ?? "환율 조회 실패");
+    }finally{
+      $("fxBtn").disabled = false;
+    }
+  });
+
+  $("date").addEventListener("change", () => {
+    // If cached fx exists for date, auto-fill.
+    const d = $("date").value;
+    if (Number.isFinite(fxCache[d])) $("fx").value = String(fxCache[d]);
+    updateFxVisibility();
+    updateTotalPreview();
+  });
+
+  $("fx").addEventListener("input", updateTotalPreview);
+
+  $("saveBtn").addEventListener("click", async () => {
+    try{
+      $("saveBtn").disabled = true;
+      const entry = await buildEntryFromForm();
+      upsertEntry(entry);
+      save();
+      await driveUploadLocal(true);
+      render();
+      resetForm();
+      toast("저장 완료", "ok");
+    }catch(err){
+      toast(err?.message ?? "저장 실패", "bad", 2600);
+    }finally{
+      $("saveBtn").disabled = false;
+    }
+  });
+
+  $("cancelEditBtn").addEventListener("click", resetForm);
+  $("resetFormBtn").addEventListener("click", resetForm);
+  $("prevBtn").addEventListener("click", () => {
+    const dateStr = $("date").value;
+    if (!dateStr) return;
+    const asc = sortEntriesAsc(entries);
+    let prev = null;
+    for (const e of asc){
+      if (e.date < dateStr) prev = e;
+      else break;
+    }
+    if (!prev){
+      toast("이전 기록 없음", "bad");
+      return;
+    }
+    setHoldingsToUI(prev.holdings);
+    // Do not copy previous day's fx; today's fx will be auto-fetched on save if needed.
+    const cached = fxCache[dateStr];
+    $("fx").value = Number.isFinite(cached) ? String(cached) : "";
+    updateFxVisibility();
+    updateTotalPreview();
+    toast(`불러옴: ${prev.date}`, "ok");
+  });
+
+
+  $("clearAllBtn").addEventListener("click", () => {
+    if (!confirm("전체 데이터를 삭제할까요?")) return;
+    entries = [];
+    fxCache = {};
+    editDate = null;
+    localStorage.removeItem(STORAGE_KEY_V4);
+    render();
+    resetForm();
+  });
+
+  
+  const importFromObject = (obj) => {
+    if (!obj || !Array.isArray(obj.entries)) throw new Error("형식 오류");
+
+    const imported = obj.entries.map(e => ({
+      date: String(e.date),
+      fx: Number.isFinite(Number(e.fx)) ? Number(e.fx) : null,
+      holdings: Array.isArray(e.holdings) ? e.holdings.map(h => ({
+        where: clampStr(h?.where ?? "미지정", 60),
+        ccy: h?.ccy === "USDT" ? "USDT" : "KRW",
+        amount: Number(h?.amount)
+      })).filter(h => Number.isFinite(h.amount) && h.amount !== 0) : [],
+      totalKrw: Number(e.totalKrw)
+    })).filter(e => e.holdings.length);
+
+    const rebuilt = [];
+    const newFxCache = {};
+    for (const e of imported){
+      const needFx = holdingsNeedFx(e.holdings);
+      const fx = needFx ? (Number.isFinite(e.fx) ? e.fx : null) : null;
+      const total = computeTotalKrw(e.holdings, needFx ? fx : 1);
+      if (!Number.isFinite(total)) continue;
+      rebuilt.push({ date: e.date, fx, holdings: e.holdings, totalKrw: total });
+      if (needFx && Number.isFinite(fx)) newFxCache[e.date] = fx;
+    }
+
+    if (!rebuilt.length) throw new Error("가져올 데이터가 없습니다.");
+    entries = sortEntriesAsc(rebuilt);
+    fxCache = newFxCache;
+    save();
+    render();
+    resetForm();
+  };
+
+$("exportBtn").addEventListener("click", () => {
+    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invest-tracker-v4-${kstTodayStr()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  $("importBtn").addEventListener("click", () => $("importFile").click());
+
+  $("importFile").addEventListener("change", async (ev) => {
+    const f = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!f) return;
+    try{
+      const text = await f.text();
+      const obj = JSON.parse(text);
+      importFromObject(obj);
+      toast("가져오기 완료", "ok");
+    }catch(err){
+      toast(err?.message ?? "가져오기 실패", "bad", 2600);
+    }
+  });
+
+  /*****************
+   * Init
+   *****************/
+  const init = () => {
+    loadDriveCfg();
+    bindDriveUI();
+    refreshDriveUI();
+    // Default UI
+    $("date").value = kstTodayStr();
+    setHoldingsToUI([{where:"", ccy:"KRW", amount:""}]);
+    updateFxVisibility();
+    updateTotalPreview();
+
+    // Load
+    const loaded = tryLoadV4() || migrateLegacy();
+    if (loaded) render();
+    else render(); // empty
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>
