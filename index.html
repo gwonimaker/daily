@@ -541,6 +541,169 @@ button#clearAllBtn{
 }
 
 
+/* Drive status pill */
+.drivepill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+}
+.drivepill .dot{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background: rgba(148,163,184,.9);
+  box-shadow: 0 0 0 3px rgba(148,163,184,.18);
+}
+.drivepill.connected .dot{
+  background: rgba(16,185,129,.95);
+  box-shadow: 0 0 0 3px rgba(16,185,129,.18);
+}
+.drivepill.needs .dot{
+  background: rgba(245,158,11,.95);
+  box-shadow: 0 0 0 3px rgba(245,158,11,.18);
+}
+
+/* === Mobile responsiveness polish === */
+@media (max-width: 560px){
+  .topbar{
+    flex-direction: column;
+    align-items: flex-start;
+    gap:10px;
+    padding:12px 12px;
+  }
+  .top-actions{
+    width:100%;
+    justify-content:flex-start;
+    gap:8px;
+  }
+  .top-actions button{
+    flex: 1 1 auto;
+    text-align:center;
+  }
+
+  .layout{
+    padding:10px 12px 14px;
+    gap:10px;
+  }
+
+  .card .bd{ padding:10px; }
+  .grid2{ grid-template-columns: 1fr; }
+
+  .kpi{ grid-template-columns: 1fr; }
+
+  .charts{ grid-template-columns: 1fr; }
+  .canvas-wrap{ height:200px; min-height:160px; }
+
+  /* Let right panel scroll naturally on mobile */
+  .right .bd{ overflow:auto; }
+
+  /* Table: keep scroll inside container and reduce min width */
+  table{ min-width: 720px; }
+}
+
+/* Extra small screens */
+@media (max-width: 380px){
+  .title{ font-size:18px; }
+  button{ padding:9px 10px; }
+  .canvas-wrap{ height:180px; }
+  table{ min-width: 680px; }
+}
+
+/* Ensure date column centered */
+table thead th:first-child,
+table tbody td:first-child{
+  text-align:center !important;
+}
+
+/* Better responsiveness on smaller desktop windows */
+@media (max-width: 1200px){
+  .layout{
+    grid-template-columns: 1fr; /* stack panels */
+  }
+  .left .bd{ max-height: none; }
+  .right .bd{ overflow:auto; }
+  .charts{ grid-template-columns: 1fr; }
+  .canvas-wrap{ height:220px; }
+  table{ min-width: 760px; }
+}
+@media (max-width: 900px){
+  .layout{ padding:10px 12px 14px; }
+  table{ min-width: 720px; }
+}
+
+/* === Strong chart resize override (responds to window width/height) === */
+.charts{ align-items: stretch; }
+.chartbox{ min-height:0; display:flex; flex-direction:column; }
+.chartbox .canvas-wrap{
+  /* width-driven height so shrinking window reduces chart size */
+  height: clamp(160px, 28vw, 320px) !important;
+  min-height: 150px !important;
+  max-height: 340px !important;
+}
+/* If viewport height is small, cap further */
+@media (max-height: 760px){
+  .chartbox .canvas-wrap{ height: clamp(150px, 24vw, 260px) !important; }
+}
+@media (max-height: 660px){
+  .chartbox .canvas-wrap{ height: clamp(140px, 22vw, 230px) !important; }
+}
+/* Mobile: keep comfortable */
+@media (max-width: 560px){
+  .chartbox .canvas-wrap{ height: clamp(170px, 40vw, 260px) !important; }
+}
+
+.holdings-list{
+  padding-left:0 !important;
+  list-style-position: inside;
+  text-align:center !important;
+}
+
+
+
+/* === Holdings header/value perfect center alignment (force) === */
+td:nth-child(7){ text-align:center !important; }
+td:nth-child(7) details{
+  display:block !important;
+  width:100% !important;
+  text-align:center !important;
+}
+td:nth-child(7) summary{
+  display:flex !important;
+  width:100% !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  margin:0 auto !important;
+  list-style:none !important;
+  text-align:center !important;
+}
+td:nth-child(7) summary::-webkit-details-marker{ display:none !important; }
+td:nth-child(7) summary::marker{ content:"" !important; }
+td:nth-child(7) summary::before{ content:"" !important; display:none !important; }
+td:nth-child(7) .holdings-list{
+  width:100% !important;
+  padding-left:0 !important;
+  margin:8px 0 0 !important;
+  text-align:center !important;
+  list-style-position: inside;
+}
+
+/* === Force table header alignment (override sticky header defaults) === */
+table thead th{ text-align:center !important; }
+table thead th:nth-child(7){ text-align:center !important; } /* '예치 현황' */
+
+/* === Column 7: remove horizontal padding so header/body share identical center axis === */
+table thead th:nth-child(7),
+table tbody td:nth-child(7){
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* === Fix: details max-width was constraining holdings cell and shifting center === */
+td:nth-child(7) details{
+  max-width: none !important;
+}
 </style>
 </head>
 <body>
@@ -619,7 +782,7 @@ button#clearAllBtn{
             <div class="sub" id="kpiDeltaPct">—</div>
           </div>
           <div class="box">
-            <div class="name">누적 변동</div>
+            <div class="name">총 누적 변동</div>
             <div class="val" id="kpiCum">—</div>
             <div class="sub" id="kpiCumPct">—</div>
           </div>
@@ -639,17 +802,17 @@ button#clearAllBtn{
         <div class="tablewrap">
           <table>
             <thead>
-              <tr>
-                <th style="width:110px;">날짜</th>
-                <th class="num" style="width:140px;">총액(KRW)</th>
-                <th class="num" style="width:140px;">일일 변동</th>
-                <th class="num" style="width:120px;">누적 변동률</th>
-                <th class="num" style="width:120px;">누적 변동률</th>
-                <th class="num" style="width:120px;">USDT/KRW</th>
-                <th>예치 현황</th>
-                <th class="num" style="width:160px;">관리</th>
-              </tr>
-            </thead>
+  <tr>
+    <th style="width:110px;">날짜</th>
+    <th class="num" style="width:140px;">총액(KRW)</th>
+    <th class="num" style="width:140px;">직전 대비 변동</th>
+    <th class="num" style="width:120px;">직전 대비 변동률</th>
+    <th class="num" style="width:120px;">총 누적 변동률</th>
+    <th class="num" style="width:120px;">USDT/KRW</th>
+    <th>예치 현황</th>
+    <th class="num" style="width:160px;">관리</th>
+  </tr>
+</thead>
             <tbody id="tbody">
               <tr><td colspan="8" class="muted">데이터 없음</td></tr>
             </tbody>
@@ -791,15 +954,28 @@ button#clearAllBtn{
   };
 
   const refreshDriveUI = () => {
-    const inp = $("driveClientId");
-    if (inp && inp.value.trim() !== driveCfg.clientId) inp.value = driveCfg.clientId;
+  const st = driveStatusText();
 
-    const st = $("driveStatus");
-    if (st){
-      const fid = driveCfg.fileId ? ` · 파일: ${driveCfg.fileId.slice(0,6)}…` : "";
-      st.textContent = `상태: ${driveStatusText()}${fid}`;
-    }
-  };
+  const pill = $("driveBtn");
+  const dot = $("driveDot");
+  const lbl = $("driveLabel");
+
+  if (pill){
+    pill.classList.remove("connected","needs");
+    if (st === "연결됨") pill.classList.add("connected");
+    else if (st === "연결 필요") pill.classList.add("needs");
+  }
+  if (lbl){
+    // Minimal label
+    lbl.textContent = (st === "연결됨") ? "Drive 연결됨" : (st === "연결 필요") ? "Drive 연결 필요" : "Drive";
+  }
+
+  const stEl = $("driveStatus");
+  if (stEl){
+    const fid = driveCfg.fileId ? ` · 파일: ${driveCfg.fileId.slice(0,6)}…` : "";
+    stEl.textContent = `상태: ${st}${fid}`;
+  }
+};
 
   const openDriveModal = () => {
     $("driveModal")?.classList.remove("hidden");
@@ -1369,6 +1545,69 @@ row.addEventListener("drop", (ev) => {
    *****************/
   let chartTotal = null;
   let chartDaily = null;
+
+// --- Chart resize plumbing (fixes: resize after window drag / split view) ---
+const scheduleChartResize = (() => {
+  let raf = 0;
+
+  const syncOne = (chart) => {
+    try{
+      const canvas = chart?.canvas;
+      const wrap = canvas?.parentElement;
+      if (!canvas || !wrap) return;
+
+      const rect = wrap.getBoundingClientRect();
+      const w = Math.max(0, Math.floor(rect.width));
+      const h = Math.max(0, Math.floor(rect.height));
+      if (!w || !h) return;
+
+      // Force canvas pixel size to match container (prevents stale sizing after window resize)
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      const dpr = window.devicePixelRatio || 1;
+      const pw = Math.floor(w * dpr);
+      const ph = Math.floor(h * dpr);
+      if (canvas.width !== pw) canvas.width = pw;
+      if (canvas.height !== ph) canvas.height = ph;
+
+      if (typeof chart.resize === "function") chart.resize(w, h);
+      if (typeof chart.update === "function") chart.update("none");
+    }catch(_){}
+  };
+
+  return () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      syncOne(chartTotal);
+      syncOne(chartDaily);
+      // One more tick after layout settles (split view / maximize)
+      requestAnimationFrame(() => {
+        syncOne(chartTotal);
+        syncOne(chartDaily);
+      });
+    });
+  };
+})();
+
+const installChartResizeObservers = () => {
+  const w1 = $("chartTotal")?.parentElement; // .canvas-wrap
+  const w2 = $("chartDaily")?.parentElement; // .canvas-wrap
+  const cb = $("chartsBox");
+
+  if (window.ResizeObserver){
+    const ro = new ResizeObserver(() => scheduleChartResize());
+    if (w1) ro.observe(w1);
+    if (w2) ro.observe(w2);
+    if (cb) ro.observe(cb);
+    // Observe the right panel as well (some layouts change only there)
+    const rb = document.querySelector(".card.right .bd");
+    if (rb) ro.observe(rb);
+  }
+
+  window.addEventListener("resize", scheduleChartResize);
+  window.addEventListener("orientationchange", scheduleChartResize);
+};
   const createChartsIfNeeded = () => {
     if (chartTotal || chartDaily) return;
 
@@ -1441,6 +1680,8 @@ row.addEventListener("drop", (ev) => {
           }
         }
       });
+
+      scheduleChartResize();
     }catch(_){
       const box = $("chartsBox");
       if (box) box.classList.add("hidden");
@@ -1481,6 +1722,7 @@ row.addEventListener("drop", (ev) => {
     updateKpis();
     renderTable();
     updateCharts();
+    scheduleChartResize();
   };
 
   const updateKpis = () => {
@@ -1944,6 +2186,14 @@ const init = async () => {
     // Auto connect + auto load (best effort)
     await autoDriveBootstrap();
     render();
+
+// Force charts to resize on window resize (desktop split/resize edge cases)
+window.addEventListener("resize", () => {
+  try{
+    if (typeof chartTotal?.resize === "function") chartTotal.resize();
+    if (typeof chartDaily?.resize === "function") chartDaily.resize();
+  }catch(_){}
+});
   };
 
   init();
