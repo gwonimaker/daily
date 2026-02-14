@@ -376,23 +376,48 @@ tbody tr:hover td{ background:#f4f7ff; }
       background:#fff;
     }
 
-    .toast{
-      position:fixed;
-      right:16px;
-      bottom:16px;
-      max-width: min(420px, calc(100vw - 32px));
-      background:#0b0f19;
-      color:#fff;
-      padding:10px 12px;
-      border-radius:16px;
-      font-weight:900;
-      font-size:12px;
-      box-shadow: 0 14px 36px rgba(2,6,23,.22);
-      z-index:1000;
-      white-space:pre-wrap;
-    }
-    .toast.ok{background: rgba(15,157,88,.92)}
-    .toast.bad{background: rgba(217,48,37,.92)}
+    .toast-backdrop{
+  position:fixed;
+  inset:0;
+  background: rgba(2,6,23,.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index:999;
+  opacity:0;
+  transition: opacity .18s ease;
+}
+.toast-backdrop.show{ opacity:1; }
+.toast{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(.98);
+  min-width:280px;
+  max-width: min(520px, calc(100vw - 32px));
+  background: rgba(15,23,42,.92);
+  color:#fff;
+  padding:16px 18px;
+  border-radius:18px;
+  font-weight:900;
+  font-size:14px;
+  box-shadow: 0 34px 70px rgba(2,6,23,.34);
+  z-index:1000;
+  white-space:pre-wrap;
+  text-align:center;
+  opacity:0;
+  transition: opacity .18s ease, transform .18s ease, background .18s ease;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.toast.show{
+  opacity:1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.toast.ok{
+  background: rgba(16,185,129,.92);
+}
+.toast.bad{
+  background: rgba(217,48,37,.92);
+}
   
 /* --- Emotional theme polish --- */
 body{
@@ -659,6 +684,8 @@ button#clearAllBtn{
   </div>
 </div>
 
+<div id="toastBackdrop" class="toast-backdrop hidden"></div>
+
 <div id="toast" class="toast hidden"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -709,16 +736,35 @@ button#clearAllBtn{
   const $ = (id) => document.getElementById(id);
 
   const toast = (msg, kind="ok", ms=2200) => {
-    const el = $("toast");
-    if (!el) return;
-    el.textContent = String(msg ?? "");
-    el.classList.remove("hidden", "ok", "bad");
-    el.classList.add(kind === "bad" ? "bad" : "ok");
-    window.clearTimeout(toast._t);
-    toast._t = window.setTimeout(() => {
+  const el = $("toast");
+  const bd = $("toastBackdrop");
+  if (!el) return;
+
+  el.textContent = String(msg ?? "");
+  el.classList.remove("hidden", "ok", "bad", "show");
+  el.classList.add(kind === "bad" ? "bad" : "ok");
+
+  if (bd){
+    bd.classList.remove("hidden");
+    // trigger transition
+    requestAnimationFrame(() => bd.classList.add("show"));
+  }
+
+  // trigger transition
+  requestAnimationFrame(() => el.classList.add("show"));
+
+  window.clearTimeout(toast._t);
+  toast._t = window.setTimeout(() => {
+    el.classList.remove("show");
+    if (bd) bd.classList.remove("show");
+
+    window.clearTimeout(toast._t2);
+    toast._t2 = window.setTimeout(() => {
       el.classList.add("hidden");
-    }, ms);
-  };
+      if (bd) bd.classList.add("hidden");
+    }, 220);
+  }, ms);
+};
 
 
   const loadDriveCfg = () => {
@@ -1878,7 +1924,17 @@ $("exportBtn").addEventListener("click", () => {
   /*****************
    * Init
    *****************/
-  const init = async () => {
+  
+  $("toastBackdrop")?.addEventListener("click", () => {
+    const el = $("toast");
+    const bd = $("toastBackdrop");
+    window.clearTimeout(toast._t);
+    window.clearTimeout(toast._t2);
+    if (el){ el.classList.remove("show"); el.classList.add("hidden"); }
+    if (bd){ bd.classList.remove("show"); bd.classList.add("hidden"); }
+  });
+
+const init = async () => {
     loadDriveCfg();
     bindDriveUI();
     refreshDriveUI();
