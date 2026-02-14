@@ -631,7 +631,7 @@ button#clearAllBtn{
             <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
           </div>
 <div class="chartbox">
-            <div class="ctitle">일일 변동률</div>
+            <div class="ctitle">누적 변동률</div>
             <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
           </div>
         </div>
@@ -643,7 +643,7 @@ button#clearAllBtn{
                 <th style="width:110px;">날짜</th>
                 <th class="num" style="width:140px;">총액(KRW)</th>
                 <th class="num" style="width:140px;">일일 변동</th>
-                <th class="num" style="width:120px;">일일 변동률</th>
+                <th class="num" style="width:120px;">누적 변동률</th>
                 <th class="num" style="width:120px;">누적 변동률</th>
                 <th class="num" style="width:120px;">USDT/KRW</th>
                 <th>예치 현황</th>
@@ -1426,7 +1426,7 @@ row.addEventListener("drop", (ev) => {
         data: { 
           labels: [], 
           datasets: [{
-            label: "일일 변동률",
+            label: "누적 변동률",
             data: [],
             tension: 0.25,
             pointRadius: 2,
@@ -1464,14 +1464,12 @@ row.addEventListener("drop", (ev) => {
     const labels = asc.map(e => e.date);
     const totals = asc.map(e => e.totalKrw);
 
-    const dailyPct = [];
+    const cumPct = [];
+    const first = asc[0]?.totalKrw;
     for (let i=0;i<asc.length;i++){
-      if (i===0) dailyPct.push(null);
-      else{
-        const prev = asc[i-1].totalKrw;
-        const cur = asc[i].totalKrw;
-        dailyPct.push(prev ? (cur/prev - 1) : null);
-      }
+      const cur = asc[i].totalKrw;
+      if (!first) cumPct.push(null);
+      else cumPct.push(i===0 ? 0 : (cur/first - 1));
     }
 
     chartTotal.data.labels = labels;
@@ -1479,7 +1477,7 @@ row.addEventListener("drop", (ev) => {
     chartTotal.update();
 
     chartDaily.data.labels = labels;
-    chartDaily.data.datasets[0].data = dailyPct;
+    chartDaily.data.datasets[0].data = cumPct;
     chartDaily.update();
   };
 
