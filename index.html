@@ -1,29 +1,39 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Inter:wght@400;600;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>투자 기록</title>
   <style>
     :root{
-      --bg:#ffffff;
-      --panel:#ffffff;
-      --panel2:#f6f7f9;
-      --text:#0b0f19;
-      --muted:#5b6474;
-      --border:#e6e8ee;
-      --shadow: 0 10px 30px rgba(2,6,23,.08);
-      --radius:14px;
-      --ok:#0f9d58;
-      --bad:#d93025;
-    }
+  --bg:#f8fafc;
+  --bg2:#eef2ff;
+  --panel:#ffffff;
+  --panel2:#f1f5f9;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --shadow: 0 12px 28px rgba(15,23,42,.08);
+  --radius:18px;
+
+  --accent:#a5b4fc;      /* pastel indigo */
+  --accent-strong:#818cf8;
+  --mint:#99f6e4;        /* pastel mint */
+  --rose:#fecdd3;        /* pastel rose */
+
+  --ok:#10b981;
+  --bad:#ef4444;
+}
     *{box-sizing:border-box}
     html, body{height:100%}
     body{
       margin:0;
-      background:var(--bg);
+      background:linear-gradient(180deg, var(--bg2) 0%, var(--bg) 22%);
       color:var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      font-family: "Inter","Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       overflow:hidden;
     }
     .app{
@@ -36,7 +46,7 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
+      gap:14px;
       padding:12px 16px;
       border-bottom:1px solid var(--border);
       background:var(--panel);
@@ -45,31 +55,51 @@
     .title{
       font-weight:900;
       letter-spacing:-0.2px;
-      font-size:16px;
+      font-size:20px; font-family:"DM Serif Display", serif; letter-spacing:-.4px;
       margin:0;
       white-space:nowrap;
     }
-    .top-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .top-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
     button{
-      cursor:pointer;
-      border:1px solid var(--border);
-      background:var(--panel2);
-      color:var(--text);
-      padding:9px 11px;
-      border-radius:12px;
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  color:var(--text);
+  padding:10px 14px;
+  border-radius:16px;
+  font-weight:600;
+  font-size:13px;
+  letter-spacing:.2px;
+  transition: all .15s ease;
+}
+button:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(15,23,42,.08);
+}
+button:active{
+  transform: translateY(0);
+}
+button.primary{
+      background:var(--accent);
+      border-color:var(--accent-strong);
+      color:#1e1b4b;
       font-weight:800;
-      font-size:12px;
-      line-height:1;
     }
-    button.primary{
-      background: rgba(15,157,88,.10);
-      border-color: rgba(15,157,88,.25);
-      color:#075c34;
+    button.primary:hover{
+      background: linear-gradient(180deg, rgba(47,107,255,.92) 0%, rgba(31,79,214,.95) 100%);
+      border-color: rgba(47,107,255,.85);
+      box-shadow: 0 16px 30px rgba(31,79,214,.22);
     }
     button.danger{
-      background: rgba(217,48,37,.08);
-      border-color: rgba(217,48,37,.25);
-      color:#7a1711;
+      background:var(--rose);
+      border-color:#fda4af;
+      color:#7f1d1d;
+      font-weight:700;
+    }
+    button.danger:hover{
+      background: linear-gradient(180deg, rgba(217,48,37,.98), rgba(160,20,12,1));
+      border-color: rgba(217,48,37,.78);
+      box-shadow: 0 16px 30px rgba(217,48,37,.18);
     }
     button:disabled{opacity:.55; cursor:not-allowed}
 
@@ -77,7 +107,7 @@
       flex:1 1 auto;
       min-height:0;
       display:grid;
-      grid-template-columns: minmax(360px, 460px) 1fr;
+      grid-template-columns: minmax(360px, 500px) 1fr;
       gap:12px;
       padding:12px 16px 16px;
     }
@@ -90,7 +120,7 @@
       background:var(--panel);
       border:1px solid var(--border);
       border-radius:var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow2);
       min-height:0;
       display:flex;
       flex-direction:column;
@@ -98,6 +128,21 @@
     }
     .card .hd{
       padding:12px 12px 10px;
+
+.card .hd{
+  position:relative;
+}
+.card .hd::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:-1px;
+  height:2px;
+  background: linear-gradient(90deg, rgba(47,107,255,.55), rgba(47,107,255,0));
+  pointer-events:none;
+}
+
       border-bottom:1px solid var(--border);
       background:var(--panel2);
       display:flex;
@@ -130,7 +175,7 @@
     }
     input, select, textarea{
       width:100%;
-      padding:10px 10px;
+      padding:12px 12px;
       border:1px solid var(--border);
       border-radius:12px;
       background:#fff;
@@ -138,12 +183,12 @@
       outline:none;
     }
     input:focus, select:focus, textarea:focus{
-      border-color: rgba(15,157,88,.45);
-      box-shadow: 0 0 0 4px rgba(15,157,88,.12);
+      border-color: rgba(47,107,255,.45);
+      box-shadow: 0 0 0 4px rgba(47,107,255,.12);
     }
     .row{
       display:grid;
-      grid-template-columns: 1.2fr .7fr 1fr auto;
+      grid-template-columns: auto 1.2fr .7fr 1fr auto;
       gap:8px;
       align-items:center;
     }
@@ -162,13 +207,15 @@
       .kpi{grid-template-columns:1fr}
     }
     .kpi .box{
+      text-align:center;
+
       border:1px solid var(--border);
-      border-radius:14px;
+      border-radius:16px;
       background:#fff;
-      padding:10px 10px;
+      padding:12px 12px;
     }
     .kpi .name{font-size:11px; font-weight:900; color:var(--muted); margin-bottom:6px}
-    .kpi .val{font-size:16px; font-weight:1000; letter-spacing:-0.3px}
+    .kpi .val{font-size:20px; font-weight:800; font-family:"Inter",sans-serif; font-weight:1000; letter-spacing:-0.3px}
     .kpi .sub{font-size:11px; color:var(--muted); margin-top:6px}
 
     .charts{
@@ -182,15 +229,15 @@
     }
     .chartbox{
       border:1px solid var(--border);
-      border-radius:14px;
+      border-radius:16px;
       background:#fff;
-      padding:10px 10px;
+      padding:12px 12px;
       min-height:0;
       display:flex;
       flex-direction:column;
     }
-    .chartbox .ctitle{
-      font-size:11px;
+    .chartbox .ctitle{ font-family:"Pretendard",sans-serif; font-size:13px; letter-spacing:.3px;
+      font-size:12px;
       font-weight:900;
       color:var(--muted);
       margin:0 0 8px;
@@ -212,7 +259,7 @@
       flex:1 1 auto;
       min-height:0;
       border:1px solid var(--border);
-      border-radius:14px;
+      border-radius:16px;
       background:#fff;
       overflow:auto;
     }
@@ -222,13 +269,17 @@
       border-spacing:0;
       min-width:900px;
     }
-    th, td{
-      padding:10px 10px;
+    th, td{ font-size:13px;
+      padding:12px 12px;
       border-bottom:1px solid var(--border);
       font-size:12px;
       vertical-align:top;
       background:#fff;
     }
+    
+tbody tr:nth-child(even) td{ background:#fbfcff; }
+tbody tr:hover td{ background:#f4f7ff; }
+
     thead th{
       position:sticky;
       top:0;
@@ -247,7 +298,7 @@
       border:1px solid var(--border);
       background:var(--panel2);
       padding:6px 10px;
-      border-radius:999px;
+      border-radius:999px; box-shadow: 0 8px 16px rgba(2,6,23,.06);
       font-weight:900;
       font-size:11px;
       white-space:nowrap;
@@ -261,7 +312,7 @@
     .holdings-list li{margin:4px 0}
 
     .inline-actions{display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap}
-    .mini{padding:8px 10px; font-size:11px}
+    .mini{padding:9px 11px; font-size:11.5px}
 
     .total-preview{
       margin-top:10px;
@@ -271,8 +322,8 @@
       gap:10px;
       border:1px solid var(--border);
       background:#fff;
-      border-radius:14px;
-      padding:10px 10px;
+      border-radius:16px;
+      padding:12px 12px;
     }
     .total-preview .label{font-size:11px; font-weight:900; color:var(--muted)}
     .total-preview .value{font-size:16px; font-weight:1000; letter-spacing:-0.2px; white-space:nowrap}
@@ -301,7 +352,7 @@
       background: var(--panel);
       border:1px solid var(--border);
       border-radius:16px;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow2);
       overflow:hidden;
     }
     .modal .mh{
@@ -333,7 +384,7 @@
       background:#0b0f19;
       color:#fff;
       padding:10px 12px;
-      border-radius:14px;
+      border-radius:16px;
       font-weight:900;
       font-size:12px;
       box-shadow: 0 14px 36px rgba(2,6,23,.22);
@@ -342,16 +393,139 @@
     }
     .toast.ok{background: rgba(15,157,88,.92)}
     .toast.bad{background: rgba(217,48,37,.92)}
-  </style>
+  
+/* --- Emotional theme polish --- */
+body{
+  background:
+    radial-gradient(1200px 600px at 10% 0%, rgba(165,180,252,.55), rgba(255,255,255,0) 55%),
+    radial-gradient(1000px 520px at 90% 10%, rgba(153,246,228,.45), rgba(255,255,255,0) 60%),
+    radial-gradient(900px 520px at 50% 100%, rgba(254,205,211,.45), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 40%, #ffffff 100%);
+}
+.card{
+  border-color: rgba(226,232,240,.85);
+  box-shadow: 0 24px 60px rgba(15,23,42,.12);
+}
+.topbar{
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,.75);
+}
+.card .hd{
+  background: linear-gradient(180deg, rgba(241,245,249,.95), rgba(255,255,255,.90));
+}
+.card .hd::after{
+  height:3px;
+  background: linear-gradient(90deg, rgba(129,140,248,.65), rgba(153,246,228,.40), rgba(254,205,211,.40), rgba(255,255,255,0));
+}
+.kpi .box{
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(241,245,249,.70));
+  border-color: rgba(226,232,240,.90);
+}
+.kpi .name{
+  letter-spacing:.3px;
+  text-transform: none;
+}
+.kpi .val{
+  line-height:1.15;
+}
+.chartbox{
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(241,245,249,.72));
+}
+.canvas-wrap{
+  border-radius: 14px;
+}
+input, select, textarea{
+  background: rgba(255,255,255,.90);
+}
+input::placeholder{ color: rgba(100,116,139,.70); }
+
+/* Make primary/rose buttons feel softer */
+button.primary{
+  background: linear-gradient(180deg, rgba(165,180,252,.92), rgba(129,140,248,.85));
+  border-color: rgba(129,140,248,.65);
+  color:#0f172a;
+}
+button.danger{
+  background: linear-gradient(180deg, rgba(254,205,211,.92), rgba(253,164,175,.85));
+  border-color: rgba(253,164,175,.70);
+  color:#7f1d1d;
+}
+
+/* Dashboard table: center align everything */
+table{ min-width: 960px; }
+th, td{ text-align:center; }
+td.num, th.num{ text-align:center; }
+.inline-actions{ justify-content:center; }
+
+
+    th, td{
+      vertical-align: middle !important;
+    }
+
+
+.drag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.85);
+  border-radius:14px;
+  width:40px;
+  height:40px;
+  font-weight:1000;
+  color: var(--muted);
+  cursor: grab;
+  user-select:none;
+}
+.drag:active{ cursor: grabbing; }
+.row.dragging{
+  opacity:.65;
+  transform: scale(.995);
+}
+.row.drop-target{
+  outline: 2px dashed rgba(129,140,248,.55);
+  outline-offset: 4px;
+  border-radius:14px;
+}
+
+
+button#addHoldingBtn{
+  background: linear-gradient(180deg, rgba(16,185,129,.95), rgba(5,150,105,.98));
+  border-color: rgba(16,185,129,.70);
+  color: #ffffff;
+  font-weight: 900;
+}
+button#addHoldingBtn:hover{
+  background: linear-gradient(180deg, rgba(16,185,129,1), rgba(4,120,87,1));
+  border-color: rgba(5,150,105,.85);
+}
+
+
+
+/* === Force white text + subtle text shadow for primary & danger === */
+button.primary,
+button#saveBtn{
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+
+button.danger,
+button#clearAllBtn{
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+
+
+</style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
     <h1 class="title">투자 기록</h1>
     <div class="top-actions">
-      <button id="driveBtn" class="mini">Drive</button>
-      <button id="exportBtn" class="mini">내보내기</button>
-      <button id="importBtn" class="mini">가져오기</button>
+      <button id="driveBtn" class="mini">☁ Drive</button>
+      <button id="exportBtn" class="mini">📤 내보내기</button>
+      <button id="importBtn" class="mini">📥 가져오기</button>
       <input id="importFile" type="file" accept=".json" class="hidden" />
     </div>
   </div>
@@ -361,7 +535,7 @@
       <div class="hd">
         <h2>입력</h2>
         <div class="inline-actions">
-          <button id="prevBtn" class="mini">전일 불러오기</button>
+          <button id="prevBtn" class="mini">⏪ 전일 불러오기</button>
           <button id="resetFormBtn" class="mini">초기화</button>
         </div>
       </div>
@@ -382,7 +556,7 @@
 
         <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div class="muted" style="font-size:11px; font-weight:900;">예치 현황</div>
-          <button id="addHoldingBtn" class="mini">항목 추가</button>
+          
         </div>
         <div id="holdings"></div>
 
@@ -395,9 +569,10 @@
         </div>
 
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="saveBtn" class="primary">저장</button>
+          <button id="addHoldingBtn" class="mini">＋ 항목 추가</button>
+          <button id="saveBtn" class="primary">💾 저장</button>
           <button id="cancelEditBtn" class="mini hidden">편집 취소</button>
-          <button id="clearAllBtn" class="danger">전체 삭제</button>
+          <button id="clearAllBtn" class="danger">🗑 전체 삭제</button>
         </div>
       </div>
     </div>
@@ -919,6 +1094,52 @@ const autoDriveBootstrap = async () => {
     return fx;
   };
 
+// Auto FX: fetch once per date when USDT exists and fx is missing
+let fxFetchInFlight = null;
+const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
+  if (!dateStr) return null;
+
+  // Only if current UI has USDT rows
+  if (!uiHasUsdtRow()) return null;
+
+  // If already have cached fx and not forcing, just use it
+  if (!force && Number.isFinite(fxCache[dateStr])) {
+    if (!$("fx").value) $("fx").value = String(fxCache[dateStr]);
+    return fxCache[dateStr];
+  }
+
+  // If user typed a manual fx, respect it (and cache it)
+  const manual = parseNum($("fx").value);
+  if (!force && Number.isFinite(manual) && manual > 0){
+    fxCache[dateStr] = manual;
+    return manual;
+  }
+
+  // Avoid duplicate calls
+  if (fxFetchInFlight && fxFetchInFlight.dateStr === dateStr) return fxFetchInFlight.promise;
+
+  const p = (async () => {
+    try{
+      $("fxBtn").disabled = true;
+      const fx = await getUpbitUsdtKrwClose(dateStr);
+      fxCache[dateStr] = fx;
+      $("fx").value = String(fx);
+      updateTotalPreview();
+      return fx;
+    }catch(_){
+      // Keep quiet; user can still enter manually
+      return null;
+    }finally{
+      $("fxBtn").disabled = false;
+      fxFetchInFlight = null;
+    }
+  })();
+
+  fxFetchInFlight = { dateStr, promise: p };
+  return p;
+};
+
+
   const holdingsNeedFx = (holdings) => holdings.some(h => h.ccy === "USDT" && Number.isFinite(h.amount) && h.amount !== 0);
 
   /*****************
@@ -929,7 +1150,9 @@ const autoDriveBootstrap = async () => {
   const holdingRowTemplate = (h = {}) => {
     const row = document.createElement("div");
     row.className = "row";
+    row.setAttribute("draggable", "true");
     row.innerHTML = `
+      <div class="drag" title="드래그로 순서 변경">⋮⋮</div>
       <input class="where" type="text" placeholder="예치처" value="${escapeHtml(h.where ?? "")}">
       <select class="ccy">
         <option value="KRW">KRW</option>
@@ -940,8 +1163,14 @@ const autoDriveBootstrap = async () => {
     `;
     row.querySelector(".ccy").value = (h.ccy === "USDT" ? "USDT" : "KRW");
 
-    const onChange = () => {
+// Prevent accidental drag from form controls
+row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable","false"));
+
+
+    const onChange = async () => {
       updateFxVisibility();
+      const d = $("date").value;
+      await ensureFxForDateIfNeeded(d, false);
       updateTotalPreview();
     };
     row.querySelector(".where").addEventListener("input", onChange);
@@ -952,6 +1181,64 @@ const autoDriveBootstrap = async () => {
       updateFxVisibility();
       updateTotalPreview();
     });
+
+// Drag & Drop reorder (only start when dragging the handle)
+let canDrag = false;
+row.querySelector(".drag").addEventListener("pointerdown", () => { canDrag = true; });
+row.querySelector(".drag").addEventListener("pointerup", () => { canDrag = false; });
+row.querySelector(".drag").addEventListener("pointercancel", () => { canDrag = false; });
+
+row.addEventListener("dragstart", (ev) => {
+  if (!canDrag){
+    ev.preventDefault();
+    return;
+  }
+  row.classList.add("dragging");
+  ev.dataTransfer.effectAllowed = "move";
+  ev.dataTransfer.setData("text/plain", "holding-row");
+  // store reference globally
+  holdingsEl.__dragging = row;
+});
+
+row.addEventListener("dragend", () => {
+  row.classList.remove("dragging");
+  const targets = holdingsEl.querySelectorAll(".drop-target");
+  targets.forEach(t => t.classList.remove("drop-target"));
+  holdingsEl.__dragging = null;
+  updateFxVisibility();
+  updateTotalPreview();
+});
+
+row.addEventListener("dragover", (ev) => {
+  const dragging = holdingsEl.__dragging;
+  if (!dragging || dragging === row) return;
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = "move";
+  row.classList.add("drop-target");
+});
+
+row.addEventListener("dragleave", () => {
+  row.classList.remove("drop-target");
+});
+
+row.addEventListener("drop", (ev) => {
+  ev.preventDefault();
+  row.classList.remove("drop-target");
+  const dragging = holdingsEl.__dragging;
+  if (!dragging || dragging === row) return;
+
+  const rect = row.getBoundingClientRect();
+  const before = (ev.clientY - rect.top) < (rect.height / 2);
+
+  if (before){
+    holdingsEl.insertBefore(dragging, row);
+  } else {
+    holdingsEl.insertBefore(dragging, row.nextSibling);
+  }
+  updateFxVisibility();
+  updateTotalPreview();
+});
+
     return row;
   };
 
@@ -1062,7 +1349,18 @@ const autoDriveBootstrap = async () => {
 
       chartTotal = new Chart(c1, {
         type: "line",
-        data: { labels: [], datasets: [{ label: "총액", data: [], tension: 0.25, pointRadius: 2 }] },
+        data: { 
+          labels: [], 
+          datasets: [{
+            label: "총액",
+            data: [],
+            tension: 0.25,
+            pointRadius: 2,
+            fill: true,
+            backgroundColor: "rgba(165,180,252,.25)",
+            borderColor: "rgba(129,140,248,.9)"
+          }] 
+        },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -1079,7 +1377,18 @@ const autoDriveBootstrap = async () => {
 
       chartDaily = new Chart(c2, {
         type: "line",
-        data: { labels: [], datasets: [{ label: "일일 변동률", data: [], tension: 0.25, pointRadius: 2 }] },
+        data: { 
+          labels: [], 
+          datasets: [{
+            label: "일일 변동률",
+            data: [],
+            tension: 0.25,
+            pointRadius: 2,
+            fill: true,
+            backgroundColor: "rgba(153,246,228,.25)",
+            borderColor: "rgba(16,185,129,.85)"
+          }] 
+        },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -1436,24 +1745,15 @@ const autoDriveBootstrap = async () => {
   $("fxBtn").addEventListener("click", async () => {
     const dateStr = $("date").value;
     if (!dateStr) return;
-    try{
-      $("fxBtn").disabled = true;
-      const fx = await getUpbitUsdtKrwClose(dateStr);
-      fxCache[dateStr] = fx;
-      $("fx").value = String(fx);
-      updateTotalPreview();
-    }catch(err){
-      alert(err?.message ?? "환율 조회 실패");
-    }finally{
-      $("fxBtn").disabled = false;
-    }
+    await ensureFxForDateIfNeeded(dateStr, true);
   });
 
-  $("date").addEventListener("change", () => {
+  $("date").addEventListener("change", async () => {
     // If cached fx exists for date, auto-fill.
     const d = $("date").value;
     if (Number.isFinite(fxCache[d])) $("fx").value = String(fxCache[d]);
     updateFxVisibility();
+    await ensureFxForDateIfNeeded(d, false);
     updateTotalPreview();
   });
 
@@ -1586,6 +1886,7 @@ $("exportBtn").addEventListener("click", () => {
     $("date").value = kstTodayStr();
     setHoldingsToUI([{where:"", ccy:"KRW", amount:""}]);
     updateFxVisibility();
+    await ensureFxForDateIfNeeded($("date").value, false);
     updateTotalPreview();
 
     // Load
