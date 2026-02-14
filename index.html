@@ -646,6 +646,51 @@
     refreshDriveUI();
   };
 
+
+
+// Silent token request: tries without forcing consent UI.
+// If the browser/Google requires interaction, this throws and the user can click "연결".
+const requestDriveTokenSilent = async () => {
+  await ensureTokenClient();
+  const resp = await new Promise((resolve, reject) => {
+    driveTokenClient.callback = (r) => {
+      if (r && r.access_token) return resolve(r);
+      reject(new Error(r?.error || "인증 필요"));
+    };
+    try{
+      driveTokenClient.requestAccessToken({ prompt: "" });
+    }catch(e){
+      reject(e);
+    }
+  });
+  driveAccessToken = resp.access_token;
+  driveTokenExpiresAt = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+  // Don't flip enabled here; respect saved setting
+  refreshDriveUI();
+  return driveAccessToken;
+};
+
+const autoDriveBootstrap = async () => {
+  // Only auto-connect if the user has connected before (enabled) and clientId is present.
+  if (!driveCfg.enabled) return;
+  if (!driveCfg.clientId) return;
+
+  try{
+    await requestDriveTokenSilent();
+  }catch(_){
+    // No toast: stay quiet; user can connect manually.
+    return;
+  }
+
+  // Auto-load from Drive (best effort). If no file exists yet, keep local.
+  try{
+    const obj = await driveDownloadObject();
+    importFromObject(obj);
+    toast("Drive 자동 불러오기 완료", "ok");
+  }catch(_){
+    // Ignore (e.g., file not found yet)
+  }
+};
   const ensureDriveToken = async () => {
     if (!driveCfg.enabled) throw new Error("Drive 미연결");
     if (!driveCfg.clientId) throw new Error("OAuth Client ID 필요");
@@ -1452,7 +1497,8 @@
       const entry = await buildEntryFromForm();
       upsertEntry(entry);
       save();
-      await driveUploadLocal(true);
+      // Drive auto-save (best effort)
+      try{ await driveUploadLocal(true); }catch(e){ toast("Drive 저장 실패(연결 필요)", "bad", 2600); }
       render();
       resetForm();
       toast("저장 완료", "ok");
@@ -1564,7 +1610,7 @@ $("exportBtn").addEventListener("click", () => {
   /*****************
    * Init
    *****************/
-  const init = () => {
+  const init = async () => {
     loadDriveCfg();
     bindDriveUI();
     refreshDriveUI();
@@ -1578,6 +1624,10 @@ $("exportBtn").addEventListener("click", () => {
     const loaded = tryLoadV4() || migrateLegacy();
     if (loaded) render();
     else render(); // empty
+
+    // Auto connect + auto load (best effort)
+    await autoDriveBootstrap();
+    render();
   };
 
   init();
