@@ -662,17 +662,14 @@ button#clearAllBtn{
 </div>
 
 
-<div id="driveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Google Drive">
+<div id="driveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Google 계정 연결">
   <div class="modal">
     <div class="mh">
-      <div class="mttl">Google Drive</div>
+      <div class="mttl">Google 계정 연결</div>
       <button id="driveCloseBtn" class="mini">닫기</button>
     </div>
     <div class="mb">
-      <div class="field">
-        <label>OAuth Client ID</label>
-        <input id="driveClientId" type="text" placeholder="xxxx.apps.googleusercontent.com" />
-      </div>
+      
       <div id="driveStatus" class="muted" style="font-size:11px; font-weight:900; margin-top:10px;">—</div>
     </div>
     <div class="mf">
@@ -724,7 +721,7 @@ button#clearAllBtn{
   const DRIVE_FILE_NAME = "invest-tracker.json";
   const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 
-  let driveCfg = { clientId: "", fileId: "", enabled: false };
+  let driveCfg = { clientId: "210029436571-ppf3577p25dbv4t1l73t94io3h68vq71.apps.googleusercontent.com", fileId: "", enabled: false };
   let driveAccessToken = null;
   let driveTokenExpiresAt = 0;
   let driveTokenClient = null;
@@ -1016,14 +1013,10 @@ const autoDriveBootstrap = async () => {
       if (e.target && e.target.id === "driveModal") closeDriveModal();
     });
 
-    $("driveClientId")?.addEventListener("change", () => {
-      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
-      saveDriveCfg();
-      refreshDriveUI();
-    });
+    
 
     $("driveConnectBtn")?.addEventListener("click", async () => {
-      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
+      
       if (!driveCfg.clientId){
         toast("OAuth Client ID 필요", "bad");
         return;
@@ -1053,7 +1046,7 @@ const autoDriveBootstrap = async () => {
     });
 
     $("driveSaveBtn")?.addEventListener("click", async () => {
-      driveCfg.clientId = String($("driveClientId").value ?? "").trim();
+      
       saveDriveCfg();
       await driveUploadLocal(false);
     });
