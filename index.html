@@ -118,7 +118,7 @@
       min-height:0;
     }
     .left .bd{overflow:auto}
-    .right .bd{overflow:hidden; display:flex; flex-direction:column; gap:12px}
+    .right .bd{overflow:hidden; display:flex; flex-direction:column; gap:8px}
 
     .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
     .field label{
@@ -425,12 +425,12 @@
           </div>
         </div>
 
-        <div class="charts">
+        <div class="charts" id="chartsBox">
           <div class="chartbox">
             <div class="ctitle">총액 추이 (KRW)</div>
             <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
           </div>
-          <div class="chartbox">
+<div class="chartbox">
             <div class="ctitle">일일 변동률</div>
             <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
           </div>
@@ -888,6 +888,18 @@ const autoDriveBootstrap = async () => {
     if (a >= 1e4)  return sign + (a/1e4).toFixed(1) + "만";
     return sign + nf.format(Math.round(a));
   };
+
+
+  const colorForKey = (key) => {
+    const s = String(key ?? "");
+    let h = 0;
+    for (let i = 0; i < s.length; i++){
+      h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    }
+    const hue = h % 360;
+    return `hsl(${hue}, 72%, 52%)`;
+  };
+
   const sortEntriesAsc = (arr) => arr.slice().sort((a,b)=> (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const sortEntriesDesc = (arr) => arr.slice().sort((a,b)=> (a.date > b.date ? -1 : a.date < b.date ? 1 : 0));
 
@@ -1031,57 +1043,68 @@ const autoDriveBootstrap = async () => {
    *****************/
   let chartTotal = null;
   let chartDaily = null;
-  
   const createChartsIfNeeded = () => {
-    if (chartTotal) return;
+    if (chartTotal || chartDaily) return;
 
-    Chart.defaults.animation = false;
+    // If Chart.js is blocked (adblock/network), don't break the app.
+    if (!window.Chart){
+      const box = $("chartsBox");
+      if (box) box.classList.add("hidden");
+      return;
+    }
 
-    chartTotal = new Chart($("chartTotal"), {
-      type: "line",
-      data: { labels: [], datasets: [{ label: "총액", data: [], tension: 0.25, pointRadius: 2 }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${fmtKRW(ctx.parsed.y)}`
-            }
+    const c1 = $("chartTotal");
+    const c2 = $("chartDaily");
+    if (!c1 || !c2) return;
+
+    try{
+      Chart.defaults.animation = false;
+
+      chartTotal = new Chart(c1, {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "총액", data: [], tension: 0.25, pointRadius: 2 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => ` ${fmtKRW(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { ticks: { maxRotation: 0, autoSkip: true } },
+            y: { ticks: { callback: (v) => shortKRW(v) } }
           }
-        },
-        scales: {
-          x: { ticks: { maxRotation: 0, autoSkip: true } },
-          y: { ticks: { callback: (v) => shortKRW(v) } }
         }
-      }
-    });
+      });
 
-    chartDaily = new Chart($("chartDaily"), {
-      type: "line",
-      data: { labels: [], datasets: [{ label: "일일 변동률", data: [], tension: 0.25, pointRadius: 2 }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${fmtPct(ctx.parsed.y)}`
-            }
+      chartDaily = new Chart(c2, {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "일일 변동률", data: [], tension: 0.25, pointRadius: 2 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => ` ${fmtPct(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { ticks: { maxRotation: 0, autoSkip: true } },
+            y: { ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
           }
-        },
-        scales: {
-          x: { ticks: { maxRotation: 0, autoSkip: true } },
-          y: { ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
         }
-      }
-    });
+      });
+    }catch(_){
+      const box = $("chartsBox");
+      if (box) box.classList.add("hidden");
+      chartTotal = null;
+      chartDaily = null;
+    }
   };
 
   const updateCharts = () => {
     createChartsIfNeeded();
+    if (!chartTotal || !chartDaily) return;
+
     const asc = sortEntriesAsc(entries);
     const labels = asc.map(e => e.date);
     const totals = asc.map(e => e.totalKrw);
@@ -1103,8 +1126,6 @@ const autoDriveBootstrap = async () => {
     chartDaily.data.labels = labels;
     chartDaily.data.datasets[0].data = dailyPct;
     chartDaily.update();
-      return;
-    }
   };
 
   /*****************
