@@ -737,6 +737,28 @@ td:nth-child(7) details{
     max-height: 420px;
   }
 }
+
+/* ===== Force "mobile/tablet" layout on touch devices (Galaxy Fold etc.) ===== */
+@media (pointer: coarse){
+  body{ overflow:auto !important; }
+  .app{ height:auto !important; overflow:visible !important; }
+  .layout{ grid-template-columns: 1fr !important; }
+  .right .bd{ overflow:visible !important; }
+  .tablewrap{ max-height:none !important; }
+  .charts{ grid-template-columns: 1fr !important; }
+  /* Prevent charts from being squeezed by flex/table */
+  .charts{ flex: 0 0 auto !important; }
+  .chartbox{ flex: 0 0 auto !important; }
+  .chartbox .canvas-wrap{
+    height: 280px !important;        /* hard floor for touch devices */
+    min-height: 240px !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;   /* rely on fixed height for stability */
+  }
+}
+@media (pointer: coarse) and (max-height: 720px){
+  .chartbox .canvas-wrap{ height: 220px !important; min-height: 200px !important; }
+}
 </style>
 </head>
 <body>
