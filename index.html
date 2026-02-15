@@ -705,59 +705,51 @@ td:nth-child(7) details{
   max-width: none !important;
 }
 
-/* ===== Galaxy Fold / tablet aspect-safe charts ===== */
-@media (max-width: 980px){
-  .charts{ grid-template-columns: 1fr !important; }
-}
-
-/* Use aspect-ratio to avoid "squished" charts on unusual aspect devices */
-.chartbox{ display:flex; flex-direction:column; }
-.chartbox .canvas-wrap{
-  width:100% !important;
-  height:auto !important;
-  aspect-ratio: 16 / 9;
-  min-height: 220px;
-  max-height: 460px;
-}
-
-/* Fold-like widths with low height: keep readable */
-@media (max-height: 720px){
-  .chartbox .canvas-wrap{
-    aspect-ratio: 16 / 8;
-    min-height: 180px;
-    max-height: 360px;
-  }
-}
-
-/* Narrow but tall devices */
-@media (max-width: 560px){
-  .chartbox .canvas-wrap{
-    aspect-ratio: 4 / 3;
-    min-height: 240px;
-    max-height: 420px;
-  }
-}
-
-/* ===== Force "mobile/tablet" layout on touch devices (Galaxy Fold etc.) ===== */
+/* === Fold/mobile: prevent chart/table overlap & squish === */
 @media (pointer: coarse){
   body{ overflow:auto !important; }
   .app{ height:auto !important; overflow:visible !important; }
   .layout{ grid-template-columns: 1fr !important; }
-  .right .bd{ overflow:visible !important; }
-  .tablewrap{ max-height:none !important; }
-  .charts{ grid-template-columns: 1fr !important; }
-  /* Prevent charts from being squeezed by flex/table */
-  .charts{ flex: 0 0 auto !important; }
-  .chartbox{ flex: 0 0 auto !important; }
-  .chartbox .canvas-wrap{
-    height: 280px !important;        /* hard floor for touch devices */
-    min-height: 240px !important;
-    max-height: none !important;
-    aspect-ratio: auto !important;   /* rely on fixed height for stability */
+  .right .bd{
+    display:block !important;
+    overflow:visible !important;
   }
+  .charts{
+    display:block !important;
+    min-height:auto !important;
+  }
+  .chartbox{
+    overflow:hidden !important;
+    margin-bottom:12px !important;
+  }
+  .chartbox .canvas-wrap{
+    position:relative !important;
+    height:260px !important;
+    min-height:240px !important;
+    overflow:hidden !important;
+  }
+  .chartbox canvas{
+    display:block;
+  }
+  /* Disable sticky headers on mobile to avoid overlay artifacts */
+  thead th{
+    position:static !important;
+    top:auto !important;
+    z-index:auto !important;
+  }
+  /* Table spacing */
+  .tablewrap{
+    margin-top:10px !important;
+  }
+  table{ min-width: 720px !important; }
 }
+
+/* Smaller height landscape */
 @media (pointer: coarse) and (max-height: 720px){
-  .chartbox .canvas-wrap{ height: 220px !important; min-height: 200px !important; }
+  .chartbox .canvas-wrap{
+    height:210px !important;
+    min-height:190px !important;
+  }
 }
 </style>
 </head>
