@@ -188,7 +188,7 @@ button.primary{
     }
     .row{
       display:grid;
-      grid-template-columns: auto 1.2fr .7fr 1fr auto;
+      grid-template-columns: auto 1.2fr .7fr 1fr auto auto;
       gap:8px;
       align-items:center;
     }
@@ -204,6 +204,9 @@ button.primary{
       gap:10px;
     }
     @media (max-width: 980px){
+      .kpi{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 560px){
       .kpi{grid-template-columns:1fr}
     }
     .kpi .box{
@@ -751,6 +754,123 @@ td:nth-child(7) details{
     min-height:190px !important;
   }
 }
+
+@media (max-width: 560px){
+  #fxm{ width: 100% !important; }
+}
+
+
+/* Fixed expenses table wrapper */
+#feTbody{ }
+.fixed-expenses-wrap{ overflow-y:auto !important; overflow-x:hidden !important; }
+.fixed-expenses-wrap table{ width:100% !important; table-layout:fixed !important; }
+.fixed-expenses-wrap th, .fixed-expenses-wrap td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fixed-expenses-wrap th:nth-child(1), .fixed-expenses-wrap td:nth-child(1){ width:28%; }
+.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ width:22%; text-align:right; }
+.fixed-expenses-wrap th:nth-child(3), .fixed-expenses-wrap td:nth-child(3){ width:40%; }
+.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){ width:10%; text-align:right; }
+
+/* Holdings row add button */
+.row .add{
+  background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.28);
+  color: #065f46;
+  font-weight: 900;
+}
+.row .add:hover{
+  background: rgba(16,185,129,.18);
+  border-color: rgba(16,185,129,.38);
+}
+
+/* Fixed expenses delete button alignment */
+.fixed-expenses-wrap td:nth-child(4){
+  text-align:center !important;
+  vertical-align: middle !important;
+}
+.fixed-expenses-wrap td:nth-child(4) button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* === Fixed expenses list: fully visible, centered, aligned delete button === */
+.fixed-expenses-wrap{ overflow:visible !important; max-height:none !important; }
+.fixed-expenses-wrap table{ min-width:0 !important; }
+.fixed-expenses-wrap thead th, .fixed-expenses-wrap tbody td{
+  text-align:center !important;
+  vertical-align: middle !important;
+}
+.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ text-align:center !important; }
+.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){ text-align:center !important; }
+.fixed-expenses-wrap td:nth-child(4) button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin:0 auto !important;
+}
+
+/* === Fixed expenses delete button: hard center + prevent clipping === */
+.fixed-expenses-wrap th:nth-child(4),
+.fixed-expenses-wrap td:nth-child(4){
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+.fixed-expenses-wrap td:nth-child(4){
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.fixed-expenses-wrap td:nth-child(4) button{
+  width: auto !important;
+  min-width: 64px;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+}
+
+/* === Fixed expenses delete button: render normally, centered (no flex cell) === */
+.fixed-expenses-wrap td:nth-child(4){
+  display: table-cell !important;
+  text-align:center !important;
+  vertical-align: middle !important;
+}
+.fixed-expenses-wrap td:nth-child(4) button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin: 0 auto !important;
+  min-width: 64px;
+  padding: 10px 14px !important;
+}
+
+/* === Fixed expenses table: prevent right-side clipping, align cleanly === */
+.fixed-expenses-wrap{
+  padding: 0 12px 0 0 !important; /* give breathing room on the right */
+}
+.fixed-expenses-wrap table{
+  width:100% !important;
+  table-layout: fixed !important;
+}
+.fixed-expenses-wrap th, .fixed-expenses-wrap td{
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fixed-expenses-wrap th:nth-child(1), .fixed-expenses-wrap td:nth-child(1){ width: 22% !important; }
+.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ width: 22% !important; }
+.fixed-expenses-wrap th:nth-child(3), .fixed-expenses-wrap td:nth-child(3){ width: 40% !important; }
+.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){
+  width: 16% !important;
+  min-width: 110px;
+  overflow: visible !important;    /* allow button to render fully */
+  text-overflow: clip !important;
+}
+.fixed-expenses-wrap td:nth-child(4){
+  padding-right: 14px !important;  /* ensure button doesn't touch edge */
+}
+.fixed-expenses-wrap td:nth-child(4) button{
+  max-width: 100%;
+  box-sizing: border-box;
+}
 </style>
 </head>
 <body>
@@ -791,7 +911,6 @@ td:nth-child(7) details{
 
         <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div class="muted" style="font-size:11px; font-weight:900;">예치 현황</div>
-          
         </div>
         <div id="holdings"></div>
 
@@ -803,8 +922,46 @@ td:nth-child(7) details{
           <div id="totalPreview" class="value">—</div>
         </div>
 
+        <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+  <div class="muted" style="font-size:11px; font-weight:900;">고정지출</div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <input id="fxm" type="month" style="width:150px; padding:9px 10px;" />
+  </div>
+</div>
+
+<div style="margin-top:10px; display:grid; grid-template-columns: 1.1fr .8fr 1.2fr auto; gap:8px; align-items:center;">
+  <input id="feName" type="text" placeholder="항목명 (예: 월세)" />
+  <input id="feAmt" type="number" inputmode="numeric" placeholder="금액(KRW)" />
+  <input id="feMemo" type="text" placeholder="메모(선택)" />
+  <button id="feAddBtn" class="mini">추가</button>
+</div>
+
+<div class="total-preview" style="margin-top:10px;">
+  <div>
+    <div class="label">선택 고정지출 합계</div>
+    <div class="muted" id="feSub" style="font-size:11px; margin-top:6px;">—</div>
+  </div>
+  <div id="feTotal" class="value">—</div>
+</div>
+
+<div style="margin-top:10px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:visible; max-height:none;" class="fixed-expenses-wrap">
+  <table style="width:100%; border-collapse:separate; border-spacing:0; min-width:0; table-layout:fixed;">
+    <thead>
+      <tr>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:left;">항목</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:right;">금액</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:left;">메모</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:right;">관리</th>
+      </tr>
+    </thead>
+    <tbody id="feTbody">
+      <tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>
+    </tbody>
+  </table>
+</div>
+
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="addHoldingBtn" class="mini">＋ 항목 추가</button>
+<button id="addHoldingBtn" class="mini">＋ 예치 항목 추가</button>
           <button id="saveBtn" class="primary">💾 저장</button>
           <button id="cancelEditBtn" class="mini hidden">편집 취소</button>
           <button id="clearAllBtn" class="danger">🗑 전체 삭제</button>
@@ -833,7 +990,13 @@ td:nth-child(7) details{
             <div class="val" id="kpiCum">—</div>
             <div class="sub" id="kpiCumPct">—</div>
           </div>
-        </div>
+        
+
+<div class="box">
+  <div class="name">월 고정지출</div>
+  <div class="val" id="kpiFixed">—</div>
+  <div class="sub" id="kpiFixedSub">—</div>
+</div></div>
 
         <div class="charts" id="chartsBox">
           <div class="chartbox">
@@ -857,11 +1020,11 @@ td:nth-child(7) details{
     <th class="num" style="width:120px;">총 누적 변동률</th>
     <th class="num" style="width:120px;">USDT/KRW</th>
     <th>예치 현황</th>
-    <th class="num" style="width:160px;">관리</th>
+    <th class="num" style="width:160px;">월간지출</th>
   </tr>
 </thead>
             <tbody id="tbody">
-              <tr><td colspan="8" class="muted">데이터 없음</td></tr>
+              <tr><td colspan="9" class="muted">데이터 없음</td></tr>
             </tbody>
           </table>
         </div>
@@ -922,7 +1085,11 @@ td:nth-child(7) details{
    */
   let entries = [];
   let editDate = null;
-  let fxCache = {}; // {"YYYY-MM-DD": number}
+  let fxCache = {};
+
+  // Fixed expenses by month: { 'YYYY-MM': [ {id,name,amount,memo} ] }
+  let fixedExpenses = {};
+ // {"YYYY-MM-DD": number}
 
   /*****************
    * Drive Sync (optional)
@@ -1184,7 +1351,7 @@ const autoDriveBootstrap = async () => {
     try{ return await res.json(); }catch(_){ return {}; }
   };
 
-  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache });
+  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses });
 
   const driveUploadLocal = async (silent=false) => {
     if (!driveCfg.enabled) return false;
@@ -1326,6 +1493,85 @@ const autoDriveBootstrap = async () => {
     return sign + nf.format(Math.round(a));
   };
 
+const monthKeyFromDate = (yyyyMmDd) => (yyyyMmDd ? String(yyyyMmDd).slice(0,7) : "");
+const kstMonthStr = () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${yyyy}-${mm}`;
+};
+const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+const getFixedList = (monthKey) => Array.isArray(fixedExpenses?.[monthKey]) ? fixedExpenses[monthKey] : [];
+const setFixedList = (monthKey, list) => { fixedExpenses[monthKey] = list; };
+const sumFixed = (monthKey) => getFixedList(monthKey).reduce((a,x)=> a + (Number(x.amount)||0), 0);
+
+const renderFixedExpenses = () => {
+  const mk = $("fxm")?.value || kstMonthStr();
+  const tb = $("feTbody");
+  const totalEl = $("feTotal");
+  const subEl = $("feSub");
+  if (!tb || !totalEl || !subEl) return;
+
+  const list = getFixedList(mk);
+  const total = sumFixed(mk);
+  totalEl.textContent = fmtKRW(total);
+
+  const latest = sortEntriesAsc(entries).slice(-1)[0];
+  const latestTotal = latest?.totalKrw;
+  if (Number.isFinite(latestTotal) && total > 0){
+    subEl.textContent = `최근 총액 기준 약 ${(latestTotal/total).toFixed(1)}개월 커버`;
+  } else {
+    subEl.textContent = "—";
+  }
+
+  if (!list.length){
+    tb.innerHTML = '<tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>';
+    return;
+  }
+  tb.innerHTML = "";
+  for (const item of list){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml(item.name)}</td>
+      <td style="padding:10px; border-bottom:1px solid var(--border); text-align:right;">${fmtKRW(item.amount)}</td>
+      <td style="padding:10px; border-bottom:1px solid var(--border); color:var(--muted);">${escapeHtml(item.memo||"")}</td>
+      <td style="padding:10px; border-bottom:1px solid var(--border); text-align:right;">
+        <button class="mini danger" data-fe-del="${escapeHtml(item.id)}">삭제</button>
+      </td>
+    `;
+    tr.querySelector("[data-fe-del]")?.addEventListener("click", () => {
+      setFixedList(mk, getFixedList(mk).filter(x => x.id !== item.id));
+      save();
+      renderFixedExpenses();
+      render();
+    });
+    tb.appendChild(tr);
+  }
+};
+
+const addFixedExpense = () => {
+  const mk = $("fxm").value;
+  const name = clampStr($("feName").value, 40);
+  const amt = parseNum($("feAmt").value);
+  const memo = clampStr($("feMemo").value, 80);
+  if (!mk) return toast("월 선택 필요", "bad");
+  if (!name) return toast("항목명을 입력하세요", "bad");
+  if (!Number.isFinite(amt) || amt <= 0) return toast("금액을 입력하세요", "bad");
+
+  const list = getFixedList(mk).slice();
+  list.push({ id: uid(), name, amount: Math.round(amt), memo });
+  setFixedList(mk, list);
+  $("feName").value = "";
+  $("feAmt").value = "";
+  $("feMemo").value = "";
+  save();
+  renderFixedExpenses();
+  render();
+  toast("고정지출 추가", "ok");
+};
+
+
 
   const colorForKey = (key) => {
     const s = String(key ?? "");
@@ -1421,85 +1667,92 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
         <option value="USDT">USDT</option>
       </select>
       <input class="amt" type="number" inputmode="decimal" placeholder="금액" value="${Number.isFinite(h.amount) ? String(h.amount) : (h.amount ?? "")}">
+      <button class="mini add" title="추가">추가</button>
       <button class="mini danger rm" title="삭제">삭제</button>
     `;
     row.querySelector(".ccy").value = (h.ccy === "USDT" ? "USDT" : "KRW");
 
-// Prevent accidental drag from form controls
-row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable","false"));
-
+    // Prevent accidental drag from form controls
+    row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable","false"));
 
     const onChange = async () => {
       updateFxVisibility();
       const d = $("date").value;
-      await ensureFxForDateIfNeeded(d, false);
+      if (typeof ensureFxForDateIfNeeded === "function") await ensureFxForDateIfNeeded(d, false);
       updateTotalPreview();
     };
     row.querySelector(".where").addEventListener("input", onChange);
     row.querySelector(".ccy").addEventListener("change", onChange);
     row.querySelector(".amt").addEventListener("input", onChange);
+
     row.querySelector(".rm").addEventListener("click", () => {
       row.remove();
       updateFxVisibility();
       updateTotalPreview();
     });
 
-// Drag & Drop reorder (only start when dragging the handle)
-let canDrag = false;
-row.querySelector(".drag").addEventListener("pointerdown", () => { canDrag = true; });
-row.querySelector(".drag").addEventListener("pointerup", () => { canDrag = false; });
-row.querySelector(".drag").addEventListener("pointercancel", () => { canDrag = false; });
+    row.querySelector(".add").addEventListener("click", () => {
+      const newRow = holdingRowTemplate({});
+      row.insertAdjacentElement("afterend", newRow);
+      updateFxVisibility();
+      updateTotalPreview();
+    });
 
-row.addEventListener("dragstart", (ev) => {
-  if (!canDrag){
-    ev.preventDefault();
-    return;
-  }
-  row.classList.add("dragging");
-  ev.dataTransfer.effectAllowed = "move";
-  ev.dataTransfer.setData("text/plain", "holding-row");
-  // store reference globally
-  holdingsEl.__dragging = row;
-});
+    // Drag & Drop reorder (only start when dragging the handle)
+    let canDrag = false;
+    row.querySelector(".drag").addEventListener("pointerdown", () => { canDrag = true; });
+    row.querySelector(".drag").addEventListener("pointerup", () => { canDrag = false; });
+    row.querySelector(".drag").addEventListener("pointercancel", () => { canDrag = false; });
 
-row.addEventListener("dragend", () => {
-  row.classList.remove("dragging");
-  const targets = holdingsEl.querySelectorAll(".drop-target");
-  targets.forEach(t => t.classList.remove("drop-target"));
-  holdingsEl.__dragging = null;
-  updateFxVisibility();
-  updateTotalPreview();
-});
+    row.addEventListener("dragstart", (ev) => {
+      if (!canDrag){
+        ev.preventDefault();
+        return;
+      }
+      row.classList.add("dragging");
+      ev.dataTransfer.effectAllowed = "move";
+      ev.dataTransfer.setData("text/plain", "holding-row");
+      holdingsEl.__dragging = row;
+    });
 
-row.addEventListener("dragover", (ev) => {
-  const dragging = holdingsEl.__dragging;
-  if (!dragging || dragging === row) return;
-  ev.preventDefault();
-  ev.dataTransfer.dropEffect = "move";
-  row.classList.add("drop-target");
-});
+    row.addEventListener("dragend", () => {
+      row.classList.remove("dragging");
+      const targets = holdingsEl.querySelectorAll(".drop-target");
+      targets.forEach(t => t.classList.remove("drop-target"));
+      holdingsEl.__dragging = null;
+      updateFxVisibility();
+      updateTotalPreview();
+    });
 
-row.addEventListener("dragleave", () => {
-  row.classList.remove("drop-target");
-});
+    row.addEventListener("dragover", (ev) => {
+      const dragging = holdingsEl.__dragging;
+      if (!dragging || dragging === row) return;
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "move";
+      row.classList.add("drop-target");
+    });
 
-row.addEventListener("drop", (ev) => {
-  ev.preventDefault();
-  row.classList.remove("drop-target");
-  const dragging = holdingsEl.__dragging;
-  if (!dragging || dragging === row) return;
+    row.addEventListener("dragleave", () => {
+      row.classList.remove("drop-target");
+    });
 
-  const rect = row.getBoundingClientRect();
-  const before = (ev.clientY - rect.top) < (rect.height / 2);
+    row.addEventListener("drop", (ev) => {
+      ev.preventDefault();
+      row.classList.remove("drop-target");
+      const dragging = holdingsEl.__dragging;
+      if (!dragging || dragging === row) return;
 
-  if (before){
-    holdingsEl.insertBefore(dragging, row);
-  } else {
-    holdingsEl.insertBefore(dragging, row.nextSibling);
-  }
-  updateFxVisibility();
-  updateTotalPreview();
-});
+      const rect = row.getBoundingClientRect();
+      const before = (ev.clientY - rect.top) < (rect.height / 2);
+
+      if (before){
+        holdingsEl.insertBefore(dragging, row);
+      } else {
+        holdingsEl.insertBefore(dragging, row.nextSibling);
+      }
+      updateFxVisibility();
+      updateTotalPreview();
+    });
 
     return row;
   };
@@ -1817,6 +2070,16 @@ const installChartResizeObservers = () => {
     $("kpiCumPct").textContent = fmtPct(cumPct);
     $("kpiCum").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
     $("kpiCumPct").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
+
+const mk = monthKeyFromDate(latest.date);
+const ftotal = sumFixed(mk);
+$("kpiFixed").textContent = ftotal ? fmtKRW(ftotal) : "—";
+if (ftotal && Number.isFinite(latest.totalKrw)){
+  $("kpiFixedSub").textContent = `총액 대비 ${(ftotal/latest.totalKrw*100).toFixed(1)}% · ${(latest.totalKrw/ftotal).toFixed(1)}개월`;
+} else {
+  $("kpiFixedSub").textContent = mk ? `${mk} 기준` : "—";
+}
+
   };
 
   const renderTable = () => {
@@ -1825,7 +2088,7 @@ const installChartResizeObservers = () => {
     const desc = sortEntriesDesc(entries);
 
     if (!desc.length){
-      tb.innerHTML = `<tr><td colspan="8" class="muted">데이터 없음</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="9" class="muted">데이터 없음</td></tr>`;
       return;
     }
 
@@ -1845,6 +2108,10 @@ const installChartResizeObservers = () => {
 
       const fxTxt = (Number.isFinite(e.fx) ? fmtFX(e.fx) : "—");
 
+      const mk = monthKeyFromDate(e.date);
+      const feMonth = sumFixed(mk);
+      const feMonthTxt = feMonth ? fmtKRW(feMonth) : "—";
+
       const holdingsDetails = buildHoldingsDetails(e);
 
       const tr = document.createElement("tr");
@@ -1856,6 +2123,7 @@ const installChartResizeObservers = () => {
         <td class="num">${fmtPct(cumPct)}</td>
         <td class="num">${fxTxt}</td>
         <td>${holdingsDetails}</td>
+        <td class="num">${feMonthTxt}</td>
         <td class="num">
           <div class="inline-actions">
             <button class="mini" data-act="edit" data-date="${e.date}">편집</button>
@@ -1974,7 +2242,7 @@ const installChartResizeObservers = () => {
    * Persistence + Migration
    *****************/
   const save = () => {
-    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache };
+    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses };
     localStorage.setItem(STORAGE_KEY_V4, JSON.stringify(payload));
   };
 
@@ -1997,6 +2265,7 @@ const installChartResizeObservers = () => {
         }))
         .filter(e => e.holdings.length && Number.isFinite(e.totalKrw));
       fxCache = (obj.fxCache && typeof obj.fxCache === "object") ? obj.fxCache : {};
+      fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
       entries = sortEntriesAsc(entries);
       return true;
     }catch(_){
@@ -2055,6 +2324,7 @@ const installChartResizeObservers = () => {
         if (migrated.length){
           entries = sortEntriesAsc(migrated);
           fxCache = newFxCache;
+          fixedExpenses = {};
           save();
           return true;
         }
@@ -2177,7 +2447,7 @@ const installChartResizeObservers = () => {
   };
 
 $("exportBtn").addEventListener("click", () => {
-    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache };
+    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache, fixedExpenses };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2205,7 +2475,13 @@ $("exportBtn").addEventListener("click", () => {
     }
   });
 
-  /*****************
+  
+
+// Fixed expenses UI
+$("feAddBtn")?.addEventListener("click", addFixedExpense);
+$("fxm")?.addEventListener("change", () => renderFixedExpenses());
+
+/*****************
    * Init
    *****************/
   
@@ -2224,6 +2500,7 @@ const init = async () => {
     refreshDriveUI();
     // Default UI
     $("date").value = kstTodayStr();
+    $("fxm").value = monthKeyFromDate($("date").value) || kstMonthStr();
     setHoldingsToUI([{where:"", ccy:"KRW", amount:""}]);
     updateFxVisibility();
     await ensureFxForDateIfNeeded($("date").value, false);
@@ -2233,10 +2510,12 @@ const init = async () => {
     const loaded = tryLoadV4() || migrateLegacy();
     if (loaded) render();
     else render(); // empty
+    renderFixedExpenses();
 
     // Auto connect + auto load (best effort)
     await autoDriveBootstrap();
     render();
+    renderFixedExpenses();
 
 // Force charts to resize on window resize (desktop split/resize edge cases)
 window.addEventListener("resize", () => {
