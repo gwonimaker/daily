@@ -1424,7 +1424,7 @@ const autoDriveBootstrap = async () => {
       if (!silent) toast("Drive 저장 완료", "ok");
       return true;
     }catch(err){
-      toast(err?.message ?? "Drive 저장 실패", "bad", 2600);
+      if (!silent) toast(err?.message ?? "Drive 저장 실패", "bad", 2600);
       return false;
     }
   };
@@ -1593,6 +1593,7 @@ const renderFixedExpenses = () => {
     tr.querySelector("[data-fe-del]")?.addEventListener("click", () => {
       setFixedList(mk, getFixedList(mk).filter(x => x.id !== item.id));
       save();
+      try{ driveUploadLocal(true); }catch(_){ }
       renderFixedExpenses();
       render();
     });
@@ -1616,6 +1617,7 @@ const addFixedExpense = () => {
   $("feAmt").value = "";
   $("feMemo").value = "";
   save();
+  try{ driveUploadLocal(true); }catch(_){ }
   renderFixedExpenses();
   render();
   toast("고정지출 추가", "ok");
@@ -2509,8 +2511,10 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
     if (!rebuilt.length) throw new Error("가져올 데이터가 없습니다.");
     entries = sortEntriesAsc(rebuilt);
     fxCache = newFxCache;
+    fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
     save();
     render();
+    renderFixedExpenses();
     resetForm();
   };
 
