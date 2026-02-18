@@ -182,13 +182,46 @@ button.primary{
       color:var(--text);
       outline:none;
     }
-    input:focus, select:focus, textarea:focus{
+    
+/* === Currency toggle (KRW / USDT) === */
+.ccy-toggle{
+  display:flex;
+  width:100%;
+  min-width: 128px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  background: rgba(255,255,255,.85);
+}
+.ccy-toggle .ccy-btn{
+  flex:1 1 50%;
+  border:0;
+  border-right:1px solid var(--border);
+  background: transparent;
+  padding:10px 10px;
+  border-radius:0;
+  font-weight:1000;
+  font-size:12px;
+  letter-spacing:.2px;
+  box-shadow:none;
+  transform:none;
+}
+.ccy-toggle .ccy-btn:last-child{ border-right:0; }
+.ccy-toggle .ccy-btn:hover{ box-shadow:none; transform:none; }
+.ccy-toggle .ccy-btn:active{ transform:none; }
+.ccy-toggle .ccy-btn.active{
+  background: linear-gradient(180deg, rgba(165,180,252,.92), rgba(129,140,248,.85));
+  color:#ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+}
+
+input:focus, select:focus, textarea:focus{
       border-color: rgba(47,107,255,.45);
       box-shadow: 0 0 0 4px rgba(47,107,255,.12);
     }
     .row{
       display:grid;
-      grid-template-columns: auto 1.2fr .7fr 1fr auto auto;
+      grid-template-columns: 44px 1.2fr 128px 1fr auto auto;
       gap:8px;
       align-items:center;
     }
@@ -961,7 +994,6 @@ td:nth-child(7) details{
 </div>
 
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-<button id="addHoldingBtn" class="mini">＋ 예치 항목 추가</button>
           <button id="saveBtn" class="primary">💾 저장</button>
           <button id="cancelEditBtn" class="mini hidden">편집 취소</button>
           <button id="clearAllBtn" class="danger">🗑 전체 삭제</button>
@@ -1662,17 +1694,27 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     row.innerHTML = `
       <div class="drag" title="드래그로 순서 변경">⋮⋮</div>
       <input class="where" type="text" placeholder="예치처" value="${escapeHtml(h.where ?? "")}">
-      <select class="ccy">
-        <option value="KRW">KRW</option>
-        <option value="USDT">USDT</option>
-      </select>
+      <div class="ccy-toggle" role="group" aria-label="통화 선택">
+        <button type="button" class="ccy-btn" data-ccy="KRW" aria-pressed="true">KRW</button>
+        <button type="button" class="ccy-btn" data-ccy="USDT" aria-pressed="false">USDT</button>
+        <input class="ccy" type="hidden" value="KRW">
+      </div>
       <input class="amt" type="number" inputmode="decimal" placeholder="금액" value="${Number.isFinite(h.amount) ? String(h.amount) : (h.amount ?? "")}">
       <button class="mini add" title="추가">추가</button>
       <button class="mini danger rm" title="삭제">삭제</button>
     `;
-    row.querySelector(".ccy").value = (h.ccy === "USDT" ? "USDT" : "KRW");
-
-    // Prevent accidental drag from form controls
+    // Init currency toggle
+const ccyHidden = row.querySelector(".ccy");
+const ccyBtns = Array.from(row.querySelectorAll(".ccy-btn"));
+const initCcy = (h.ccy === "USDT" ? "USDT" : "KRW");
+if (ccyHidden) ccyHidden.value = initCcy;
+ccyBtns.forEach(btn => {
+  const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+  const active = (v === initCcy);
+  btn.classList.toggle("active", active);
+  btn.setAttribute("aria-pressed", active ? "true" : "false");
+});
+// Prevent accidental drag from form controls
     row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable","false"));
 
     const onChange = async () => {
@@ -1682,8 +1724,21 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
       updateTotalPreview();
     };
     row.querySelector(".where").addEventListener("input", onChange);
-    row.querySelector(".ccy").addEventListener("change", onChange);
-    row.querySelector(".amt").addEventListener("input", onChange);
+    // Toggle handlers
+ccyBtns.forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+    if (ccyHidden) ccyHidden.value = v;
+    ccyBtns.forEach(b => {
+      const bv = b.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+      const active = (bv === v);
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    await onChange();
+  });
+});
+row.querySelector(".amt").addEventListener("input", onChange);
 
     row.querySelector(".rm").addEventListener("click", () => {
       row.remove();
@@ -2336,11 +2391,6 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
   /*****************
    * Handlers
    *****************/
-  $("addHoldingBtn").addEventListener("click", () => {
-    holdingsEl.appendChild(holdingRowTemplate({}));
-    updateFxVisibility();
-    updateTotalPreview();
-  });
 
   $("fxBtn").addEventListener("click", async () => {
     const dateStr = $("date").value;
