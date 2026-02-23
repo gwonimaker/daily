@@ -922,6 +922,97 @@ td:nth-child(7) details{
   color: var(--bad) !important;
 }
 
+
+/* === Point farming table === */
+.point-farming-wrap{ overflow:visible !important; max-height:none !important; padding: 0 12px 0 0 !important; }
+.point-farming-wrap table{ width:100% !important; table-layout: fixed !important; min-width:0 !important; }
+.point-farming-wrap th, .point-farming-wrap td{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; text-align:center !important; vertical-align: middle !important; }
+
+
+/* === Point farming: consistent center alignment + polish === */
+.point-farming-wrap table{
+  width:100% !important;
+  table-layout: fixed !important;
+  min-width: 0 !important;
+}
+.point-farming-wrap th,
+.point-farming-wrap td{
+  text-align:center !important;
+  vertical-align: middle !important;
+  padding: 12px !important;
+  line-height: 1.25 !important;
+}
+.point-farming-wrap td.pf-protocol{
+  font-weight: 1000;
+}
+.point-farming-wrap td.pf-points{
+  font-weight: 1000;
+  color: var(--accent-strong);
+}
+.point-farming-wrap td.pf-period{
+  color: var(--muted) !important;
+  font-weight: 700;
+}
+.point-farming-wrap td.pf-actions button{
+  display:inline-flex !important;
+  margin: 0 auto !important;
+}
+
+
+/* === Point farming: FINAL force center for every column === */
+.point-farming-wrap table thead th,
+.point-farming-wrap table tbody td{
+  text-align: center !important;
+}
+.point-farming-wrap table thead th:nth-child(1),
+.point-farming-wrap table tbody td:nth-child(1),
+.point-farming-wrap table thead th:nth-child(2),
+.point-farming-wrap table tbody td:nth-child(2),
+.point-farming-wrap table thead th:nth-child(3),
+.point-farming-wrap table tbody td:nth-child(3),
+.point-farming-wrap table thead th:nth-child(4),
+.point-farming-wrap table tbody td:nth-child(4){
+  text-align: center !important;
+}
+
+
+/* === Emphasis styling: Fixed expenses + Holdings details === */
+
+/* Fixed expenses table: item bold, amount emphasized, memo muted */
+.fixed-expenses-wrap tbody td:nth-child(1){
+  font-weight: 1000 !important;
+  color: var(--text) !important;
+}
+.fixed-expenses-wrap tbody td:nth-child(2){
+  font-weight: 1000 !important;
+  color: var(--accent-strong) !important;
+}
+.fixed-expenses-wrap tbody td:nth-child(3){
+  color: var(--muted) !important;
+}
+
+/* Holdings details in dashboard: where bold, amount emphasized, meta muted */
+.holdings-list li .h-where{
+  font-weight: 1000;
+  color: var(--text);
+}
+.holdings-list li .h-amt{
+  font-weight: 1000;
+  color: var(--accent-strong);
+}
+.holdings-list li .h-ccy{
+  font-weight: 900;
+  color: var(--muted);
+}
+.holdings-list li .h-meta{
+  color: var(--muted);
+  font-weight: 700;
+}
+.holdings-list li .h-krwapprox{
+  color: var(--muted);
+  font-weight: 700;
+}
+
 </style>
 </head>
 <body>
@@ -1009,6 +1100,35 @@ td:nth-child(7) details{
       <tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>
     </tbody>
   </table>
+
+<!-- === Point Farming (DeFi) === -->
+<div style="margin-top:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+  <div class="muted" style="font-size:11px; font-weight:900;">포인트 파밍</div>
+</div>
+
+<div style="margin-top:10px; display:grid; grid-template-columns: 1.1fr .8fr 1.2fr auto; gap:8px; align-items:center;">
+  <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" />
+  <input id="pfPoints" type="number" inputmode="decimal" placeholder="포인트 수량" />
+  <input id="pfPeriod" type="text" placeholder="기간 (예: 2026-03-01~2026-06-01 / 90d)" />
+  <button id="pfAddBtn" class="mini">추가</button>
+</div>
+
+<div style="margin-top:10px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:visible; max-height:none;" class="point-farming-wrap">
+  <table style="width:100%; border-collapse:separate; border-spacing:0; min-width:0; table-layout:fixed;">
+    <thead>
+      <tr>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">프로토콜</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">포인트</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">기간</th>
+        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">관리</th>
+      </tr>
+    </thead>
+    <tbody id="pfTbody">
+      <tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>
+    </tbody>
+  </table>
+</div>
+
 </div>
 
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -1139,6 +1259,8 @@ td:nth-child(7) details{
 
   // Fixed expenses by month: { 'YYYY-MM': [ {id,name,amount,memo} ] }
   let fixedExpenses = {};
+  // Point farming by month: { "YYYY-MM": [ {id, protocol, points, period} ] }
+  let pointFarming = {};
  // {"YYYY-MM-DD": number}
 
   /*****************
@@ -1401,7 +1523,7 @@ const autoDriveBootstrap = async () => {
     try{ return await res.json(); }catch(_){ return {}; }
   };
 
-  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses });
+  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming });
 
   const driveUploadLocal = async (silent=false) => {
     if (!driveCfg.enabled) return false;
@@ -1552,6 +1674,69 @@ const kstMonthStr = () => {
 };
 const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
 
+// Point farming helpers
+const getPfList = (monthKey) => Array.isArray(pointFarming?.[monthKey]) ? pointFarming[monthKey] : [];
+const setPfList = (monthKey, list) => { pointFarming[monthKey] = list; };
+
+const renderPointFarming = () => {
+  const mk = $("fxm")?.value || kstMonthStr();
+  const tb = $("pfTbody");
+  if (!tb) return;
+
+  const list = getPfList(mk);
+  if (!list.length){
+    tb.innerHTML = '<tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = "";
+  for (const item of list){
+    const tr = document.createElement("tr");
+    const pts = Number(item.points) || 0;
+    tr.innerHTML = `
+      <td class="pf-protocol" style="padding:12px; border-bottom:1px solid var(--border);">${escapeHtml(item.protocol||"")}</td>
+      <td class="pf-points" style="padding:12px; border-bottom:1px solid var(--border);">${pts ? escapeHtml(nf.format(pts)) : ""}</td>
+      <td class="pf-period" style="padding:12px; border-bottom:1px solid var(--border);">${escapeHtml(item.period||"")}</td>
+      <td class="pf-actions" style="padding:12px; border-bottom:1px solid var(--border);">
+        <button class="mini danger" data-pf-del="${escapeHtml(item.id)}">삭제</button>
+      </td>
+    `;
+    tr.querySelector("[data-pf-del]")?.addEventListener("click", () => {
+      setPfList(mk, getPfList(mk).filter(x => x.id !== item.id));
+      save();
+      try{ driveUploadLocal(true); }catch(_){}
+      renderPointFarming();
+      render();
+    });
+    tb.appendChild(tr);
+  }
+};
+
+const addPointFarming = () => {
+  const mk = $("fxm")?.value || "";
+  const protocol = clampStr($("pfProtocol")?.value, 60);
+  const points = parseNum($("pfPoints")?.value);
+  const period = clampStr($("pfPeriod")?.value, 120);
+
+  if (!mk) return toast("월 선택 필요", "bad");
+  if (!protocol) return toast("프로토콜을 입력하세요", "bad");
+  if (!Number.isFinite(points) || points <= 0) return toast("포인트 수량을 입력하세요", "bad");
+
+  const list = getPfList(mk).slice();
+  list.push({ id: uid(), protocol, points, period });
+  setPfList(mk, list);
+
+  if ($("pfProtocol")) $("pfProtocol").value = "";
+  if ($("pfPoints")) $("pfPoints").value = "";
+  if ($("pfPeriod")) $("pfPeriod").value = "";
+
+  save();
+  try{ driveUploadLocal(true); }catch(_){}
+  renderPointFarming();
+  render();
+  toast("포인트 파밍 추가", "ok");
+};
+
 const getFixedList = (monthKey) => Array.isArray(fixedExpenses?.[monthKey]) ? fixedExpenses[monthKey] : [];
 const setFixedList = (monthKey, list) => { fixedExpenses[monthKey] = list; };
 const sumFixed = (monthKey) => getFixedList(monthKey).reduce((a,x)=> a + (Number(x.amount)||0), 0);
@@ -1595,6 +1780,7 @@ const renderFixedExpenses = () => {
       save();
       try{ driveUploadLocal(true); }catch(_){ }
       renderFixedExpenses();
+    renderPointFarming();
       render();
     });
     tb.appendChild(tr);
@@ -2228,11 +2414,12 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
       const where = escapeHtml(h.where || "미지정");
       const amt = Number.isFinite(h.amount) ? h.amount : 0;
       if (h.ccy === "KRW"){
-        return `<li>${where}: ${escapeHtml(nf.format(amt))} KRW</li>`;
+        return `<li><span class="h-where">${where}</span>: <span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">KRW</span></li>`;
       }
       const krw = Number.isFinite(entry.fx) ? (amt * entry.fx) : NaN;
       const krwTxt = Number.isFinite(krw) ? ` (≈ ${escapeHtml(nf.format(Math.round(krw)))} KRW)` : "";
-      return `<li>${where}: ${escapeHtml(nf.format(amt))} USDT${krwTxt}</li>`;
+      const approx = krwTxt ? ` <span class="h-krwapprox">${krwTxt}</span>` : "";
+      return `<li><span class="h-where">${where}</span>: <span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">USDT</span>${approx}</li>`;
     }).join("");
 
     return `
@@ -2317,7 +2504,7 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
    * Persistence + Migration
    *****************/
   const save = () => {
-    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses };
+    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming };
     localStorage.setItem(STORAGE_KEY_V4, JSON.stringify(payload));
   };
 
@@ -2341,6 +2528,8 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
         .filter(e => e.holdings.length && Number.isFinite(e.totalKrw));
       fxCache = (obj.fxCache && typeof obj.fxCache === "object") ? obj.fxCache : {};
       fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
+    pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
+      pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
       entries = sortEntriesAsc(entries);
       return true;
     }catch(_){
@@ -2400,6 +2589,7 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
           entries = sortEntriesAsc(migrated);
           fxCache = newFxCache;
           fixedExpenses = {};
+          pointFarming = {};
           save();
           return true;
         }
@@ -2512,14 +2702,16 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
     entries = sortEntriesAsc(rebuilt);
     fxCache = newFxCache;
     fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
+    pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
     save();
     render();
     renderFixedExpenses();
+    renderPointFarming();
     resetForm();
   };
 
 $("exportBtn").addEventListener("click", () => {
-    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache, fixedExpenses };
+    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -2551,7 +2743,8 @@ $("exportBtn").addEventListener("click", () => {
 
 // Fixed expenses UI
 $("feAddBtn")?.addEventListener("click", addFixedExpense);
-$("fxm")?.addEventListener("change", () => renderFixedExpenses());
+$("pfAddBtn")?.addEventListener("click", addPointFarming);
+$("fxm")?.addEventListener("change", () => { renderFixedExpenses(); renderPointFarming(); });
 
 /*****************
    * Init
@@ -2588,6 +2781,7 @@ const init = async () => {
     await autoDriveBootstrap();
     render();
     renderFixedExpenses();
+    renderPointFarming();
 
 // Force charts to resize on window resize (desktop split/resize edge cases)
 window.addEventListener("resize", () => {
