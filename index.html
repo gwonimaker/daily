@@ -1674,16 +1674,44 @@ const kstMonthStr = () => {
 };
 const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
 
-// Point farming helpers
-const getPfList = (monthKey) => Array.isArray(pointFarming?.[monthKey]) ? pointFarming[monthKey] : [];
-const setPfList = (monthKey, list) => { pointFarming[monthKey] = list; };
+// Point farming helpers (carry-forward + month overrides)
+const latestExplicitPfMonth = (mk) => {
+  if (!isYm(mk)) return "";
+  const keys = Object.keys(pointFarming || {}).filter(isYm).sort(ymCompare);
+  let last = "";
+  for (const k of keys){
+    if (k <= mk && Array.isArray(pointFarming[k])) last = k;
+    if (k > mk) break;
+  }
+  return last;
+};
 
+const getPfListEffective = (mk) => {
+  if (!isYm(mk)) return [];
+  if (Array.isArray(pointFarming?.[mk])) return pointFarming[mk];
+  const prev = latestExplicitPfMonth(mk);
+  return prev ? (pointFarming[prev] || []) : [];
+};
+
+const ensurePfMonthMaterialized = (mk) => {
+  if (!isYm(mk)) return;
+  if (Array.isArray(pointFarming?.[mk])) return;
+  const base = getPfListEffective(mk);
+  pointFarming[mk] = base.map(x => ({
+    id: x.id,
+    protocol: x.protocol,
+    points: x.points,
+    period: x.period || ""
+  }));
+};
+
+const setPfList = (monthKey, list) => { pointFarming[monthKey] = list; };
 const renderPointFarming = () => {
   const mk = $("fxm")?.value || kstMonthStr();
   const tb = $("pfTbody");
   if (!tb) return;
 
-  const list = getPfList(mk);
+  const list = getPfListEffective(mk);
   if (!list.length){
     tb.innerHTML = '<tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>';
     return;
@@ -1702,7 +1730,8 @@ const renderPointFarming = () => {
       </td>
     `;
     tr.querySelector("[data-pf-del]")?.addEventListener("click", () => {
-      setPfList(mk, getPfList(mk).filter(x => x.id !== item.id));
+      ensurePfMonthMaterialized(mk);
+      setPfList(mk, (pointFarming[mk] || []).filter(x => x.id !== item.id));
       save();
       try{ driveUploadLocal(true); }catch(_){}
       renderPointFarming();
@@ -1722,7 +1751,8 @@ const addPointFarming = () => {
   if (!protocol) return toast("프로토콜을 입력하세요", "bad");
   if (!Number.isFinite(points) || points <= 0) return toast("포인트 수량을 입력하세요", "bad");
 
-  const list = getPfList(mk).slice();
+  ensurePfMonthMaterialized(mk);
+  const list = (pointFarming[mk] || []).slice();
   list.push({ id: uid(), protocol, points, period });
   setPfList(mk, list);
 
