@@ -1737,9 +1737,47 @@ const addPointFarming = () => {
   toast("포인트 파밍 추가", "ok");
 };
 
-const getFixedList = (monthKey) => Array.isArray(fixedExpenses?.[monthKey]) ? fixedExpenses[monthKey] : [];
-const setFixedList = (monthKey, list) => { fixedExpenses[monthKey] = list; };
-const sumFixed = (monthKey) => getFixedList(monthKey).reduce((a,x)=> a + (Number(x.amount)||0), 0);
+// --- Fixed expenses (carry-forward + month overrides) ---
+const isYm = (s) => typeof s === "string" && /^\d{4}-\d{2}$/.test(s);
+const ymCompare = (a,b) => (a < b ? -1 : a > b ? 1 : 0);
+
+// Returns the latest monthKey <= mk that has an explicit list.
+// If none exists, returns "".
+const latestExplicitFixedMonth = (mk) => {
+  if (!isYm(mk)) return "";
+  const keys = Object.keys(fixedExpenses || {}).filter(isYm).sort(ymCompare);
+  let last = "";
+  for (const k of keys){
+    if (k <= mk && Array.isArray(fixedExpenses[k])) last = k;
+    if (k > mk) break;
+  }
+  return last;
+};
+
+// Effective list for the month (inherited if missing).
+const getFixedListEffective = (mk) => {
+  if (!isYm(mk)) return [];
+  if (Array.isArray(fixedExpenses?.[mk])) return fixedExpenses[mk];
+  const prev = latestExplicitFixedMonth(mk);
+  return prev ? (fixedExpenses[prev] || []) : [];
+};
+
+// Materialize month list if it doesn't exist yet (clone inherited list).
+const ensureFixedMonthMaterialized = (mk) => {
+  if (!isYm(mk)) return;
+  if (Array.isArray(fixedExpenses?.[mk])) return;
+
+  const base = getFixedListEffective(mk);
+  fixedExpenses[mk] = base.map(x => ({
+    id: x.id,
+    name: x.name,
+    amount: x.amount,
+    memo: x.memo || ""
+  }));
+};
+
+const setFixedList = (mk, list) => { fixedExpenses[mk] = list; };
+const sumFixed = (mk) => getFixedListEffective(mk).reduce((a,x)=> a + (Number(x.amount)||0), 0);
 
 const renderFixedExpenses = () => {
   const mk = $("fxm")?.value || kstMonthStr();
@@ -1748,7 +1786,7 @@ const renderFixedExpenses = () => {
   const subEl = $("feSub");
   if (!tb || !totalEl || !subEl) return;
 
-  const list = getFixedList(mk);
+  const list = getFixedListEffective(mk);
   const total = sumFixed(mk);
   totalEl.textContent = fmtKRW(total);
 
@@ -1776,7 +1814,8 @@ const renderFixedExpenses = () => {
       </td>
     `;
     tr.querySelector("[data-fe-del]")?.addEventListener("click", () => {
-      setFixedList(mk, getFixedList(mk).filter(x => x.id !== item.id));
+      ensureFixedMonthMaterialized(mk);
+      setFixedList(mk, (fixedExpenses[mk] || []).filter(x => x.id !== item.id));
       save();
       try{ driveUploadLocal(true); }catch(_){ }
       renderFixedExpenses();
@@ -1796,7 +1835,9 @@ const addFixedExpense = () => {
   if (!name) return toast("항목명을 입력하세요", "bad");
   if (!Number.isFinite(amt) || amt <= 0) return toast("금액을 입력하세요", "bad");
 
-  const list = getFixedList(mk).slice();
+  ensureFixedMonthMaterialized(mk);
+
+  const list = (fixedExpenses[mk] || []).slice();
   list.push({ id: uid(), name, amount: Math.round(amt), memo });
   setFixedList(mk, list);
   $("feName").value = "";
