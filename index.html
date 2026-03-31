@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=60406"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Inter:wght@400;600;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
@@ -1109,7 +1110,16 @@ td:nth-child(7) details{
 <div style="margin-top:10px; display:grid; grid-template-columns: 1.1fr .8fr 1.2fr auto; gap:8px; align-items:center;">
   <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" />
   <input id="pfPoints" type="number" inputmode="decimal" placeholder="포인트 수량" />
-  <input id="pfPeriod" type="text" placeholder="기간 (예: 2026-03-01~2026-06-01 / 90d)" />
+  
+<div style="display:flex; flex-direction:column; gap:6px;">
+  <div style="display:flex; gap:6px;">
+    <input id="pfStart" type="date" />
+    <input id="pfEnd" type="date" />
+  </div>
+  
+  <div id="pfDuration" style="font-size:11px; font-weight:900; color:var(--muted);"></div>
+</div>
+
   <button id="pfAddBtn" class="mini">추가</button>
 </div>
 
@@ -1706,6 +1716,35 @@ const ensurePfMonthMaterialized = (mk) => {
 };
 
 const setPfList = (monthKey, list) => { pointFarming[monthKey] = list; };
+
+// === Enhanced Point Farming UX ===
+const getRemainingDays = (periodStr) => {
+  if (!periodStr || !periodStr.includes("~")) return null;
+  try {
+    const [start, end] = periodStr.split("~").map(s => s.trim());
+    if (!end) return null;
+    const endDate = new Date(end);
+    const today = new Date();
+    endDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    return Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+  } catch { return null; }
+};
+
+const getProgress = (periodStr) => {
+  if (!periodStr || !periodStr.includes("~")) return null;
+  try {
+    const [start, end] = periodStr.split("~").map(s => s.trim());
+    const s = new Date(start);
+    const e = new Date(end);
+    const t = new Date();
+    const total = e - s;
+    const done = t - s;
+    if (total <= 0) return null;
+    return Math.min(100, Math.max(0, (done / total) * 100));
+  } catch { return null; }
+};
+
 const renderPointFarming = () => {
   const mk = $("fxm")?.value || kstMonthStr();
   const tb = $("pfTbody");
@@ -1724,7 +1763,31 @@ const renderPointFarming = () => {
     tr.innerHTML = `
       <td class="pf-protocol" style="padding:12px; border-bottom:1px solid var(--border);">${escapeHtml(item.protocol||"")}</td>
       <td class="pf-points" style="padding:12px; border-bottom:1px solid var(--border);">${pts ? escapeHtml(nf.format(pts)) : ""}</td>
-      <td class="pf-period" style="padding:12px; border-bottom:1px solid var(--border);">${escapeHtml(item.period||"")}</td>
+      <td class="pf-period" style="padding:12px; border-bottom:1px solid var(--border);">
+
+${(() => {
+  if (!item.period || !item.period.includes("~")) return "";
+  const end = item.period.split("~")[1]?.trim();
+  return end ? escapeHtml(end) : "";
+})()}
+
+${(() => {
+  const days = getRemainingDays(item.period);
+  const progress = getProgress(item.period);
+  if (days === null) return "";
+  const color = days < 0 ? "var(--bad)" : (days <= 7 ? "#f59e0b" : "var(--ok)");
+  const txt = days < 0 ? "종료됨" : `${days}일 남음`;
+  return `
+    <div style="font-size:11px;margin-top:4px;font-weight:900;color:${color};">
+      ${txt}
+    </div>
+    ${progress !== null ? `
+    <div style="margin-top:6px;height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;">
+      <div style="width:${progress}%;height:100%;background:${color};"></div>
+    </div>` : ""}
+  `;
+})()}
+</td>
       <td class="pf-actions" style="padding:12px; border-bottom:1px solid var(--border);">
         <button class="mini danger" data-pf-del="${escapeHtml(item.id)}">삭제</button>
       </td>
@@ -1741,11 +1804,47 @@ const renderPointFarming = () => {
   }
 };
 
+
+// === Period Picker UX ===
+const updateDurationText = () => {
+  const s = $("pfStart")?.value;
+  const e = $("pfEnd")?.value;
+  const el = $("pfDuration");
+  if (!s || !e || !el) return;
+  const days = Math.ceil((new Date(e) - new Date(s)) / 86400000);
+  if (days > 0) el.textContent = `총 ${days}일`;
+  else el.textContent = "";
+};
+
+document.addEventListener("click", (e) => {
+  if (e.target.dataset.preset){
+    const days = Number(e.target.dataset.preset);
+    const today = new Date();
+    const end = new Date();
+    end.setDate(today.getDate() + days);
+    const fmt = d => d.toISOString().slice(0,10);
+    $("pfStart").value = fmt(today);
+    $("pfEnd").value = fmt(end);
+    updateDurationText();
+  }
+});
+
+$("pfStart")?.addEventListener("change", updateDurationText);
+$("pfEnd")?.addEventListener("change", updateDurationText);
+
 const addPointFarming = () => {
   const mk = $("fxm")?.value || "";
   const protocol = clampStr($("pfProtocol")?.value, 60);
   const points = parseNum($("pfPoints")?.value);
-  const period = clampStr($("pfPeriod")?.value, 120);
+  
+const start = $("pfStart")?.value;
+const end = $("pfEnd")?.value;
+
+if (!start || !end) return toast("기간을 선택하세요", "bad");
+if (new Date(end) < new Date(start)) return toast("종료일이 시작일보다 빠릅니다", "bad");
+
+const period = `${start}~${end}`;
+
 
   if (!mk) return toast("월 선택 필요", "bad");
   if (!protocol) return toast("프로토콜을 입력하세요", "bad");
@@ -1758,7 +1857,11 @@ const addPointFarming = () => {
 
   if ($("pfProtocol")) $("pfProtocol").value = "";
   if ($("pfPoints")) $("pfPoints").value = "";
-  if ($("pfPeriod")) $("pfPeriod").value = "";
+  
+if ($("pfStart")) $("pfStart").value = "";
+if ($("pfEnd")) $("pfEnd").value = "";
+if ($("pfDuration")) $("pfDuration").textContent = "";
+
 
   save();
   try{ driveUploadLocal(true); }catch(_){}
