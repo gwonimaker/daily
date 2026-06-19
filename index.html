@@ -1462,8 +1462,22 @@ summary { color: #5557dc; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
 
+
+
+/* Records-focused dashboard: charts removed so the log uses the full remaining height. */
+.dashboard-body > .records-card {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+@media (max-width: 1180px) {
+  .dashboard-body > .records-card { min-height: 520px; }
+}
+@media (max-width: 560px) {
+  .dashboard-body > .records-card { min-height: 430px; }
+}
+
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=24459"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=27574"></script>
 </head>
 <body>
 
@@ -1626,7 +1640,7 @@ summary { color: #5557dc; }
       <div class="panel-header">
         <div class="panel-title-group">
           <h2>대시보드</h2>
-          <p>자산 변동과 월 고정지출을 한눈에 확인합니다.</p>
+          <p>핵심 지표와 투자 기록을 한눈에 확인합니다.</p>
         </div>
         <span class="panel-meta">자동 계산</span>
       </div>
@@ -1652,23 +1666,6 @@ summary { color: #5557dc; }
             <div class="name">월 고정지출</div>
             <div class="val" id="kpiFixed">—</div>
             <div class="sub" id="kpiFixedSub">최근 기록 월 기준</div>
-          </div>
-        </div>
-
-        <div class="charts" id="chartsBox">
-          <div class="chartbox">
-            <div class="chart-head">
-              <div class="ctitle">총액 추이</div>
-              <div class="chart-unit">KRW</div>
-            </div>
-            <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
-          </div>
-          <div class="chartbox">
-            <div class="chart-head">
-              <div class="ctitle">누적 변동률</div>
-              <div class="chart-unit">%</div>
-            </div>
-            <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
           </div>
         </div>
 
@@ -1726,7 +1723,6 @@ summary { color: #5557dc; }
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script>
 (() => {
   "use strict";
@@ -2730,200 +2726,11 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
   };
 
   /*****************
-   * Charts (create once)
-   *****************/
-  let chartTotal = null;
-  let chartDaily = null;
-
-// --- Chart resize plumbing (fixes: resize after window drag / split view) ---
-const scheduleChartResize = (() => {
-  let raf = 0;
-
-  const syncOne = (chart) => {
-    try{
-      const canvas = chart?.canvas;
-      const wrap = canvas?.parentElement;
-      if (!canvas || !wrap) return;
-
-      const rect = wrap.getBoundingClientRect();
-      const w = Math.max(0, Math.floor(rect.width));
-      const h = Math.max(0, Math.floor(rect.height));
-      if (!w || !h) return;
-
-      // Force canvas pixel size to match container (prevents stale sizing after window resize)
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      const dpr = window.devicePixelRatio || 1;
-      const pw = Math.floor(w * dpr);
-      const ph = Math.floor(h * dpr);
-      if (canvas.width !== pw) canvas.width = pw;
-      if (canvas.height !== ph) canvas.height = ph;
-
-      if (typeof chart.resize === "function") chart.resize(w, h);
-      if (typeof chart.update === "function") chart.update("none");
-    }catch(_){}
-  };
-
-  return () => {
-    if (raf) return;
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      syncOne(chartTotal);
-      syncOne(chartDaily);
-      // One more tick after layout settles (split view / maximize)
-      requestAnimationFrame(() => {
-        syncOne(chartTotal);
-        syncOne(chartDaily);
-      });
-    });
-  };
-})();
-
-const installChartResizeObservers = () => {
-  const w1 = $("chartTotal")?.parentElement; // .canvas-wrap
-  const w2 = $("chartDaily")?.parentElement; // .canvas-wrap
-  const cb = $("chartsBox");
-
-  if (window.ResizeObserver){
-    const ro = new ResizeObserver(() => scheduleChartResize());
-    if (w1) ro.observe(w1);
-    if (w2) ro.observe(w2);
-    if (cb) ro.observe(cb);
-    // Observe the right panel as well (some layouts change only there)
-    const rb = document.querySelector(".card.right .bd");
-    if (rb) ro.observe(rb);
-  }
-
-  window.addEventListener("resize", scheduleChartResize);
-  window.addEventListener("orientationchange", scheduleChartResize);
-    if (window.visualViewport){
-      visualViewport.addEventListener("resize", scheduleChartResize);
-      visualViewport.addEventListener("scroll", scheduleChartResize);
-    }
-};
-  const createChartsIfNeeded = () => {
-    if (chartTotal || chartDaily) return;
-
-    // If Chart.js is blocked (adblock/network), don't break the app.
-    if (!window.Chart){
-      const box = $("chartsBox");
-      if (box) box.classList.add("hidden");
-      return;
-    }
-
-    const c1 = $("chartTotal");
-    const c2 = $("chartDaily");
-    if (!c1 || !c2) return;
-
-    try{
-      Chart.defaults.animation = false;
-      Chart.defaults.color = "#778196";
-      Chart.defaults.font.family = 'Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-
-      chartTotal = new Chart(c1, {
-        type: "line",
-        data: { 
-          labels: [], 
-          datasets: [{
-            label: "총액",
-            data: [],
-            tension: 0.32,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            fill: true,
-            backgroundColor: "rgba(79,70,229,.08)",
-            borderColor: "#4f46e5"
-          }] 
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: (ctx) => ` ${fmtKRW(ctx.parsed.y)}` } }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
-            y: { border: { display: false }, grid: { color: "rgba(148,163,184,.16)" }, ticks: { callback: (v) => shortKRW(v) } }
-          }
-        }
-      });
-
-      chartDaily = new Chart(c2, {
-        type: "line",
-        data: { 
-          labels: [], 
-          datasets: [{
-            label: "누적 변동률",
-            data: [],
-            tension: 0.32,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            fill: true,
-            backgroundColor: "rgba(5,150,105,.08)",
-            borderColor: "#059669"
-          }] 
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: (ctx) => ` ${fmtPct(ctx.parsed.y)}` } }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
-            y: { border: { display: false }, grid: { color: "rgba(148,163,184,.16)" }, ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
-          }
-        }
-      });
-
-      scheduleChartResize();
-    }catch(_){
-      const box = $("chartsBox");
-      if (box) box.classList.add("hidden");
-      chartTotal = null;
-      chartDaily = null;
-    }
-  };
-
-  const updateCharts = () => {
-    createChartsIfNeeded();
-    if (!chartTotal || !chartDaily) return;
-
-    const asc = sortEntriesAsc(entries);
-    const labels = asc.map(e => e.date);
-    const totals = asc.map(e => e.totalKrw);
-
-    const cumPct = [];
-    const first = asc[0]?.totalKrw;
-    for (let i=0;i<asc.length;i++){
-      const cur = asc[i].totalKrw;
-      if (!first) cumPct.push(null);
-      else cumPct.push(i===0 ? 0 : (cur/first - 1));
-    }
-
-    chartTotal.data.labels = labels;
-    chartTotal.data.datasets[0].data = totals;
-    chartTotal.update();
-
-    chartDaily.data.labels = labels;
-    chartDaily.data.datasets[0].data = cumPct;
-    chartDaily.update();
-  };
-
-  /*****************
    * Render table + KPIs
    *****************/
   const render = () => {
     updateKpis();
     renderTable();
-    updateCharts();
-    scheduleChartResize();
   };
 
   const updateKpis = () => {
@@ -3474,13 +3281,6 @@ const init = async () => {
     renderFixedExpenses();
     renderPointFarming();
 
-// Force charts to resize on window resize (desktop split/resize edge cases)
-window.addEventListener("resize", () => {
-  try{
-    if (typeof chartTotal?.resize === "function") chartTotal.resize();
-    if (typeof chartDaily?.resize === "function") chartDaily.resize();
-  }catch(_){}
-});
   };
 
   init();
