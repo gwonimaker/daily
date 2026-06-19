@@ -1285,6 +1285,90 @@ summary { color: #5557dc; }
 .h-amt { color: #5557dc; }
 .empty-cell { color: #8f98a9 !important; }
 
+/* Monthly record grouping */
+.tablewrap tbody .month-group-row td {
+  padding: 0 !important;
+  border-top: 10px solid #f3f4f7;
+  border-bottom: 1px solid #dfe3eb;
+  background: #f7f8fc !important;
+}
+.tablewrap tbody .month-group-row:first-child td { border-top: 0; }
+.tablewrap tbody .month-group-row:hover td { background: #f7f8fc !important; }
+.month-group-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 42px;
+  padding: 9px 12px;
+  background: linear-gradient(90deg, rgba(85,87,220,.09), rgba(85,87,220,.025) 48%, rgba(255,255,255,.65));
+}
+.month-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #272d3d;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.month-group-title::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #5b5ddd;
+  box-shadow: 0 0 0 4px rgba(91,93,221,.12);
+}
+.month-group-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  color: #7c8698;
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.month-group-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 4px 7px;
+  border: 1px solid rgba(91,93,221,.16);
+  border-radius: 999px;
+  color: #5557dc;
+  background: rgba(255,255,255,.82);
+  font-weight: 900;
+}
+.month-group-latest strong {
+  color: #444d5f;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.tablewrap tbody .month-record-row td { border-bottom-color: #edf0f4; }
+.tablewrap tbody .month-record-row.month-group-last td { border-bottom: 0; }
+.day-pill { gap: 5px; min-width: 58px; }
+.day-pill .day-number { color: #3f495c; }
+.day-pill .weekday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  color: #777f90;
+  background: #eceef3;
+  font-size: 8px;
+  font-weight: 900;
+}
+@media (max-width: 680px) {
+  .month-group-bar { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .month-group-meta { width: 100%; justify-content: flex-start; }
+}
+
 /* Dialogs and feedback */
 .modal { border: 0; border-radius: 20px; box-shadow: 0 30px 80px rgba(15,23,42,.28); }
 .modal .mh { color: #fff; border: 0; background: linear-gradient(115deg,#111827,#1b2945); }
@@ -1379,7 +1463,7 @@ summary { color: #5557dc; }
 }
 
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=21315"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=24459"></script>
 </head>
 <body>
 
@@ -2911,47 +2995,95 @@ const installChartResizeObservers = () => {
     const byDatePrev = new Map();
     for (let i = 0; i < asc.length; i++) byDatePrev.set(asc[i].date, i > 0 ? asc[i - 1] : null);
 
-    tb.innerHTML = "";
-    for (const e of desc){
-      const prev = byDatePrev.get(e.date);
-      const delta = prev ? (e.totalKrw - prev.totalKrw) : NaN;
-      const deltaPct = prev && prev.totalKrw ? delta / prev.totalKrw : NaN;
-      const cumPct = firstTotal ? (e.totalKrw / firstTotal - 1) : NaN;
-      const fxTxt = Number.isFinite(e.fx) ? fmtFX(e.fx) : "—";
-      const mk = monthKeyFromDate(e.date);
-      const feMonth = sumFixed(mk);
-      const feMonthTxt = feMonth ? fmtKRW(feMonth) : "—";
-      const holdingsDetails = buildHoldingsDetails(e);
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+    const formatMonthLabel = (monthKey) => {
+      const [year, month] = String(monthKey).split("-").map(Number);
+      return `${year}년 ${month}월`;
+    };
+    const formatDayParts = (dateStr) => {
+      const [year, month, day] = String(dateStr).split("-").map(Number);
+      const weekday = dayNames[new Date(Date.UTC(year, month - 1, day)).getUTCDay()] || "";
+      return { day: `${day}일`, weekday };
+    };
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="date-cell"><span class="pill">${escapeHtml(e.date)}</span></td>
-        <td class="num strong-cell">${fmtKRW(e.totalKrw)}</td>
-        <td class="num delta-cell">${Number.isFinite(delta) ? `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}` : "—"}</td>
-        <td class="num delta-pct-cell">${fmtPct(deltaPct)}</td>
-        <td class="num">${fmtPct(cumPct)}</td>
-        <td class="num">${fxTxt}</td>
-        <td class="holdings-cell">${holdingsDetails}</td>
-        <td class="num expense-cell">${feMonthTxt}</td>
-        <td class="actions-cell">
-          <div class="inline-actions">
-            <button type="button" class="mini" data-act="edit" data-date="${escapeHtml(e.date)}">편집</button>
-            <button type="button" class="mini danger" data-act="del" data-date="${escapeHtml(e.date)}">삭제</button>
+    const monthGroups = [];
+    for (const entry of desc){
+      const key = monthKeyFromDate(entry.date);
+      let group = monthGroups[monthGroups.length - 1];
+      if (!group || group.key !== key){
+        group = { key, entries: [] };
+        monthGroups.push(group);
+      }
+      group.entries.push(entry);
+    }
+
+    tb.innerHTML = "";
+
+    for (const group of monthGroups){
+      const latestInMonth = group.entries[0];
+      const groupRow = document.createElement("tr");
+      groupRow.className = "month-group-row";
+      groupRow.innerHTML = `
+        <td colspan="9">
+          <div class="month-group-bar">
+            <div class="month-group-title">${escapeHtml(formatMonthLabel(group.key))}</div>
+            <div class="month-group-meta">
+              <span class="month-group-count">${group.entries.length}건</span>
+              <span class="month-group-latest">최근 총액 <strong>${fmtKRW(latestInMonth.totalKrw)}</strong></span>
+            </div>
           </div>
         </td>
       `;
+      tb.appendChild(groupRow);
 
-      const deltaCell = tr.querySelector(".delta-cell");
-      const pctCell = tr.querySelector(".delta-pct-cell");
-      if (Number.isFinite(delta)){
-        const good = delta >= 0;
-        deltaCell.style.color = good ? "var(--ok)" : "var(--bad)";
-        pctCell.style.color = good ? "var(--ok)" : "var(--bad)";
-      }
+      group.entries.forEach((e, index) => {
+        const prev = byDatePrev.get(e.date);
+        const delta = prev ? (e.totalKrw - prev.totalKrw) : NaN;
+        const deltaPct = prev && prev.totalKrw ? delta / prev.totalKrw : NaN;
+        const cumPct = firstTotal ? (e.totalKrw / firstTotal - 1) : NaN;
+        const fxTxt = Number.isFinite(e.fx) ? fmtFX(e.fx) : "—";
+        const mk = monthKeyFromDate(e.date);
+        const feMonth = sumFixed(mk);
+        const feMonthTxt = feMonth ? fmtKRW(feMonth) : "—";
+        const holdingsDetails = buildHoldingsDetails(e);
+        const dateParts = formatDayParts(e.date);
 
-      tr.querySelector('[data-act="edit"]').addEventListener("click", () => startEdit(e.date));
-      tr.querySelector('[data-act="del"]').addEventListener("click", () => deleteEntry(e.date));
-      tb.appendChild(tr);
+        const tr = document.createElement("tr");
+        tr.className = `month-record-row${index === group.entries.length - 1 ? " month-group-last" : ""}`;
+        tr.innerHTML = `
+          <td class="date-cell">
+            <span class="pill day-pill" title="${escapeHtml(e.date)}" aria-label="${escapeHtml(e.date)}">
+              <span class="day-number">${escapeHtml(dateParts.day)}</span>
+              <span class="weekday">${escapeHtml(dateParts.weekday)}</span>
+            </span>
+          </td>
+          <td class="num strong-cell">${fmtKRW(e.totalKrw)}</td>
+          <td class="num delta-cell">${Number.isFinite(delta) ? `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}` : "—"}</td>
+          <td class="num delta-pct-cell">${fmtPct(deltaPct)}</td>
+          <td class="num">${fmtPct(cumPct)}</td>
+          <td class="num">${fxTxt}</td>
+          <td class="holdings-cell">${holdingsDetails}</td>
+          <td class="num expense-cell">${feMonthTxt}</td>
+          <td class="actions-cell">
+            <div class="inline-actions">
+              <button type="button" class="mini" data-act="edit" data-date="${escapeHtml(e.date)}">편집</button>
+              <button type="button" class="mini danger" data-act="del" data-date="${escapeHtml(e.date)}">삭제</button>
+            </div>
+          </td>
+        `;
+
+        const deltaCell = tr.querySelector(".delta-cell");
+        const pctCell = tr.querySelector(".delta-pct-cell");
+        if (Number.isFinite(delta)){
+          const good = delta >= 0;
+          deltaCell.style.color = good ? "var(--ok)" : "var(--bad)";
+          pctCell.style.color = good ? "var(--ok)" : "var(--bad)";
+        }
+
+        tr.querySelector('[data-act="edit"]').addEventListener("click", () => startEdit(e.date));
+        tr.querySelector('[data-act="del"]').addEventListener("click", () => deleteEntry(e.date));
+        tb.appendChild(tr);
+      });
     }
   };
 
