@@ -1,1241 +1,1112 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=64908"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Inter:wght@400;600;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f6fa" />
   <title>투자 기록</title>
   <style>
-    :root{
-  --bg:#f8fafc;
-  --bg2:#eef2ff;
-  --panel:#ffffff;
-  --panel2:#f1f5f9;
-  --text:#1e293b;
-  --muted:#64748b;
-  --border:#e2e8f0;
-  --shadow: 0 12px 28px rgba(15,23,42,.08);
-  --radius:18px;
-
-  --accent:#a5b4fc;      /* pastel indigo */
-  --accent-strong:#818cf8;
-  --mint:#99f6e4;        /* pastel mint */
-  --rose:#fecdd3;        /* pastel rose */
-
-  --ok:#10b981;
-  --bad:#ef4444;
-}
-    *{box-sizing:border-box}
-    html, body{height:100%}
-    body{
-      margin:0;
-      background:linear-gradient(180deg, var(--bg2) 0%, var(--bg) 22%);
-      color:var(--text);
-      font-family: "Inter","Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      overflow:hidden;
-    }
-    .app{
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:12px 16px;
-      border-bottom:1px solid var(--border);
-      background:var(--panel);
-      flex:0 0 auto;
-    }
-    .title{
-      font-weight:900;
-      letter-spacing:-0.2px;
-      font-size:20px; font-family:"DM Serif Display", serif; letter-spacing:-.4px;
-      margin:0;
-      white-space:nowrap;
-    }
-    .top-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    button{
-  cursor:pointer;
-  border:1px solid var(--border);
-  background:var(--panel2);
-  color:var(--text);
-  padding:10px 14px;
-  border-radius:16px;
-  font-weight:600;
-  font-size:13px;
-  letter-spacing:.2px;
-  transition: all .15s ease;
-}
-button:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(15,23,42,.08);
-}
-button:active{
-  transform: translateY(0);
-}
-button.primary{
-      background:var(--accent);
-      border-color:var(--accent-strong);
-      color:#1e1b4b;
-      font-weight:800;
-    }
-    button.primary:hover{
-      background: linear-gradient(180deg, rgba(47,107,255,.92) 0%, rgba(31,79,214,.95) 100%);
-      border-color: rgba(47,107,255,.85);
-      box-shadow: 0 16px 30px rgba(31,79,214,.22);
-    }
-    button.danger{
-      background:var(--rose);
-      border-color:#fda4af;
-      color:#7f1d1d;
-      font-weight:700;
-    }
-    button.danger:hover{
-      background: linear-gradient(180deg, rgba(217,48,37,.98), rgba(160,20,12,1));
-      border-color: rgba(217,48,37,.78);
-      box-shadow: 0 16px 30px rgba(217,48,37,.18);
-    }
-    button:disabled{opacity:.55; cursor:not-allowed}
-
-    .layout{
-      flex:1 1 auto;
-      min-height:0;
-      display:grid;
-      grid-template-columns: minmax(360px, 500px) 1fr;
-      gap:12px;
-      padding:12px 16px 16px;
-    }
-    @media (max-width: 980px){
-      body{overflow:auto}
-      .app{height:auto; overflow:visible}
-      .layout{grid-template-columns:1fr; min-height:auto}
-    }
-    .card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow: var(--shadow2);
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-    }
-    .card .hd{
-      padding:12px 12px 10px;
-
-.card .hd{
-  position:relative;
-}
-.card .hd::after{
-  content:"";
-  position:absolute;
-  left:12px;
-  right:12px;
-  bottom:-1px;
-  height:2px;
-  background: linear-gradient(90deg, rgba(47,107,255,.55), rgba(47,107,255,0));
-  pointer-events:none;
+:root {
+  color-scheme: light;
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --surface-tint: #f5f7ff;
+  --text: #172033;
+  --muted: #727d92;
+  --muted-strong: #566176;
+  --line: #e4e8f0;
+  --line-strong: #d6dce7;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+  --ok: #059669;
+  --ok-soft: #ecfdf5;
+  --bad: #dc2626;
+  --bad-soft: #fff1f2;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --shadow: 0 12px 34px rgba(23, 32, 51, .07);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
 }
 
-      border-bottom:1px solid var(--border);
-      background:var(--panel2);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .card .hd h2{
-      margin:0;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:-0.2px;
-      color:var(--text);
-      white-space:nowrap;
-    }
-    .card .bd{
-      padding:12px;
-      min-height:0;
-    }
-    .left .bd{overflow:auto}
-    .right .bd{overflow:hidden; display:flex; flex-direction:column; gap:8px}
-
-    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
-    .field label{
-      display:block;
-      font-size:11px;
-      font-weight:800;
-      color:var(--muted);
-      margin:0 0 6px;
-    }
-    input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      background:#fff;
-      color:var(--text);
-      outline:none;
-    }
-    
-/* === Currency toggle (KRW / USDT) === */
-.ccy-toggle{
-  display:flex;
-  width:100%;
-  min-width: 128px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  overflow:hidden;
-  background: rgba(255,255,255,.85);
-}
-.ccy-toggle .ccy-btn{
-  flex:1 1 50%;
-  border:0;
-  border-right:1px solid var(--border);
-  background: transparent;
-  padding:10px 10px;
-  border-radius:0;
-  font-weight:1000;
-  font-size:12px;
-  letter-spacing:.2px;
-  box-shadow:none;
-  transform:none;
-}
-.ccy-toggle .ccy-btn:last-child{ border-right:0; }
-.ccy-toggle .ccy-btn:hover{ box-shadow:none; transform:none; }
-.ccy-toggle .ccy-btn:active{ transform:none; }
-.ccy-toggle .ccy-btn.active{
-  background: linear-gradient(180deg, rgba(165,180,252,.92), rgba(129,140,248,.85));
-  color:#ffffff;
-  text-shadow: 0 1px 2px rgba(0,0,0,.18);
-}
-
-input:focus, select:focus, textarea:focus{
-      border-color: rgba(47,107,255,.45);
-      box-shadow: 0 0 0 4px rgba(47,107,255,.12);
-    }
-    .row{
-      display:grid;
-      grid-template-columns: 44px 1.2fr 128px 1fr auto auto;
-      gap:8px;
-      align-items:center;
-    }
-    .row + .row{margin-top:8px}
-    .row button{
-      padding:9px 10px;
-      border-radius:12px;
-    }
-    .muted{color:var(--muted)}
-    .kpi{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 980px){
-      .kpi{grid-template-columns:1fr 1fr}
-    }
-    @media (max-width: 560px){
-      .kpi{grid-template-columns:1fr}
-    }
-    .kpi .box{
-      text-align:center;
-
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      padding:12px 12px;
-    }
-    .kpi .name{font-size:11px; font-weight:900; color:var(--muted); margin-bottom:6px}
-    .kpi .val{font-size:20px; font-weight:800; font-family:"Inter",sans-serif; font-weight:1000; letter-spacing:-0.3px}
-    .kpi .sub{font-size:11px; color:var(--muted); margin-top:6px}
-
-    .charts{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      min-height:0;
-    }
-    @media (max-width: 1200px){
-      .charts{grid-template-columns:1fr}
-    }
-    .chartbox{
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      padding:12px 12px;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-    }
-    .chartbox .ctitle{ font-family:"Pretendard",sans-serif; font-size:13px; letter-spacing:.3px;
-      font-size:12px;
-      font-weight:900;
-      color:var(--muted);
-      margin:0 0 8px;
-      white-space:nowrap;
-    }
-    .canvas-wrap{
-      position:relative;
-      height:260px;
-      min-height:160px;
-    }
-    @media (max-height: 760px){
-      .canvas-wrap{height:220px}
-    }
-    @media (max-height: 660px){
-      .canvas-wrap{height:180px}
-    }
-
-    .tablewrap{
-      flex:1 1 auto;
-      min-height:0;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      overflow:auto;
-    }
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      min-width:900px;
-    }
-    th, td{ font-size:13px;
-      padding:12px 12px;
-      border-bottom:1px solid var(--border);
-      font-size:12px;
-      vertical-align:top;
-      background:#fff;
-    }
-    
-tbody tr:nth-child(even) td{ background:#fbfcff; }
-tbody tr:hover td{ background:#f4f7ff; }
-
-    thead th{
-      position:sticky;
-      top:0;
-      z-index:2;
-      background:var(--panel2);
-      font-weight:1000;
-      color:var(--muted);
-      text-align:left;
-      white-space:nowrap;
-    }
-    td.num, th.num{text-align:right}
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      border:1px solid var(--border);
-      background:var(--panel2);
-      padding:6px 10px;
-      border-radius:999px; box-shadow: 0 8px 16px rgba(2,6,23,.06);
-      font-weight:900;
-      font-size:11px;
-      white-space:nowrap;
-    }
-    .pill.ok{border-color: rgba(15,157,88,.25); background: rgba(15,157,88,.08); color:#075c34}
-    .pill.bad{border-color: rgba(217,48,37,.25); background: rgba(217,48,37,.06); color:#7a1711}
-
-    details{max-width: 520px}
-    summary{cursor:pointer; font-weight:900; color:var(--text)}
-    .holdings-list{margin:8px 0 0; padding-left:16px; color:var(--muted)}
-    .holdings-list li{margin:4px 0}
-
-    .inline-actions{display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap}
-    .mini{padding:9px 11px; font-size:11.5px}
-
-    .total-preview{
-      margin-top:10px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:16px;
-      padding:12px 12px;
-    }
-    .total-preview .label{font-size:11px; font-weight:900; color:var(--muted)}
-    .total-preview .value{font-size:16px; font-weight:1000; letter-spacing:-0.2px; white-space:nowrap}
-    .total-preview .value.bad{color:var(--bad)}
-    .fxline{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .fxline input{flex:1 1 auto}
-    .fxline button{flex:0 0 auto}
-    .hidden{display:none !important}
-
-    .modal-backdrop{
-      position:fixed;
-      inset:0;
-      background: rgba(2,6,23,.42);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      z-index:999;
-    }
-    .modal{
-      width:min(560px, 100%);
-      background: var(--panel);
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-    }
-    .modal .mh{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 12px;
-      border-bottom:1px solid var(--border);
-      background: var(--panel2);
-    }
-    .modal .mttl{font-weight:1000; font-size:12px; color:var(--text)}
-    .modal .mb{padding:12px}
-    .modal .mf{
-      padding:12px;
-      border-top:1px solid var(--border);
-      display:flex;
-      gap:8px;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-      background:#fff;
-    }
-
-    .toast-backdrop{
-  position:fixed;
-  inset:0;
-  background: rgba(2,6,23,.22);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index:999;
-  opacity:0;
-  transition: opacity .18s ease;
-}
-.toast-backdrop.show{ opacity:1; }
-.toast{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%) scale(.98);
-  min-width:280px;
-  max-width: min(520px, calc(100vw - 32px));
-  background: rgba(15,23,42,.92);
-  color:#fff;
-  padding:16px 18px;
-  border-radius:18px;
-  font-weight:900;
-  font-size:14px;
-  box-shadow: 0 34px 70px rgba(2,6,23,.34);
-  z-index:1000;
-  white-space:pre-wrap;
-  text-align:center;
-  opacity:0;
-  transition: opacity .18s ease, transform .18s ease, background .18s ease;
-  border: 1px solid rgba(255,255,255,.12);
-}
-.toast.show{
-  opacity:1;
-  transform: translate(-50%, -50%) scale(1);
-}
-.toast.ok{
-  background: rgba(16,185,129,.92);
-}
-.toast.bad{
-  background: rgba(217,48,37,.92);
-}
-  
-/* --- Emotional theme polish --- */
-body{
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  color: var(--text);
   background:
-    radial-gradient(1200px 600px at 10% 0%, rgba(165,180,252,.55), rgba(255,255,255,0) 55%),
-    radial-gradient(1000px 520px at 90% 10%, rgba(153,246,228,.45), rgba(255,255,255,0) 60%),
-    radial-gradient(900px 520px at 50% 100%, rgba(254,205,211,.45), rgba(255,255,255,0) 55%),
-    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 40%, #ffffff 100%);
+    radial-gradient(circle at 8% -10%, rgba(79, 70, 229, .09), transparent 30%),
+    radial-gradient(circle at 95% 0%, rgba(5, 150, 105, .06), transparent 25%),
+    var(--bg);
+  font-family: Inter, Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  overflow: hidden;
 }
-.card{
-  border-color: rgba(226,232,240,.85);
-  box-shadow: 0 24px 60px rgba(15,23,42,.12);
+button, input, select, textarea { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, .18);
+  outline-offset: 2px;
 }
-.topbar{
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,.75);
-}
-.card .hd{
-  background: linear-gradient(180deg, rgba(241,245,249,.95), rgba(255,255,255,.90));
-}
-.card .hd::after{
-  height:3px;
-  background: linear-gradient(90deg, rgba(129,140,248,.65), rgba(153,246,228,.40), rgba(254,205,211,.40), rgba(255,255,255,0));
-}
-.kpi .box{
-  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(241,245,249,.70));
-  border-color: rgba(226,232,240,.90);
-}
-.kpi .name{
-  letter-spacing:.3px;
-  text-transform: none;
-}
-.kpi .val{
-  line-height:1.15;
-}
-.chartbox{
-  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(241,245,249,.72));
-}
-.canvas-wrap{
-  border-radius: 14px;
-}
-input, select, textarea{
-  background: rgba(255,255,255,.90);
-}
-input::placeholder{ color: rgba(100,116,139,.70); }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
 
-/* Make primary/rose buttons feel softer */
-button.primary{
-  background: linear-gradient(180deg, rgba(165,180,252,.92), rgba(129,140,248,.85));
-  border-color: rgba(129,140,248,.65);
-  color:#0f172a;
-}
-button.danger{
-  background: linear-gradient(180deg, rgba(254,205,211,.92), rgba(253,164,175,.85));
-  border-color: rgba(253,164,175,.70);
-  color:#7f1d1d;
+.app-shell {
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* Dashboard table: center align everything */
-table{ min-width: 960px; }
-th, td{ text-align:center; }
-td.num, th.num{ text-align:center; }
-.inline-actions{ justify-content:center; }
-
-
-    th, td{
-      vertical-align: middle !important;
-    }
-
-
-.drag{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,.85);
-  border-radius:14px;
-  width:40px;
-  height:40px;
-  font-weight:1000;
+.topbar {
+  min-height: 72px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(214, 220, 231, .9);
+  background: rgba(255, 255, 255, .86);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgba(79, 70, 229, .22);
+  font-size: 17px;
+  font-weight: 800;
+}
+.brand-copy { min-width: 0; }
+.title {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.brand-subtitle {
+  margin: 3px 0 0;
   color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--muted-strong);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, color .16s ease,
+    box-shadow .16s ease, transform .16s ease;
+}
+button:hover {
+  border-color: #c8cfdb;
+  background: var(--surface-soft);
+  color: var(--text);
+  box-shadow: 0 5px 14px rgba(23, 32, 51, .06);
+  transform: translateY(-1px);
+}
+button:active { transform: translateY(0); }
+button:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+button.primary {
+  border-color: var(--primary);
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgba(79, 70, 229, .18);
+}
+button.primary:hover {
+  border-color: var(--primary-hover);
+  color: #fff;
+  background: var(--primary-hover);
+  box-shadow: 0 10px 22px rgba(79, 70, 229, .24);
+}
+button.secondary {
+  border-color: #cfd5ff;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+button.secondary:hover { border-color: #b9c0ff; color: var(--primary-hover); background: #e5e9ff; }
+button.danger {
+  border-color: #fecdd3;
+  color: var(--bad);
+  background: var(--bad-soft);
+  box-shadow: none;
+}
+button.danger:hover {
+  border-color: #fda4af;
+  color: #b91c1c;
+  background: #ffe4e6;
+  box-shadow: none;
+}
+button.mini { min-height: 34px; padding: 7px 10px; font-size: 11px; }
+.button-icon { font-size: 13px; line-height: 1; }
+
+.drivepill { padding-inline: 11px; }
+.drivepill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, .14);
+}
+.drivepill.connected .dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(5, 150, 105, .13); }
+.drivepill.needs .dot { background: var(--warning); box-shadow: 0 0 0 3px rgba(217, 119, 6, .13); }
+
+.workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(420px, 470px) minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px 20px 20px;
+}
+.panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(214, 220, 231, .95);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: var(--shadow);
+}
+.panel-header {
+  min-height: 66px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .94);
+}
+.panel-title-group { min-width: 0; }
+.panel-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.panel-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.panel-meta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: var(--muted-strong);
+  background: var(--surface-soft);
+  font-size: 10px;
+  font-weight: 700;
+}
+.panel-meta::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ok);
+}
+.panel-body { min-height: 0; }
+.input-panel .panel-body {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 14px;
+  scrollbar-gutter: stable;
+}
+.dashboard-panel .panel-body {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 14px;
+}
+.panel-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, .96);
+}
+.panel-footer #clearAllBtn { margin-left: auto; }
+
+.form-section {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.form-section + .form-section { margin-top: 12px; }
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.section-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.section-heading p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.month-picker { width: 134px; flex: 0 0 auto; }
+.field-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.field label {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--muted-strong);
+  font-size: 10px;
+  font-weight: 700;
+}
+input, select, textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+input:hover, select:hover, textarea:hover { border-color: #c6ceda; }
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(79, 70, 229, .58);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .10);
+  background: #fff;
+}
+input::placeholder, textarea::placeholder { color: #a0a8b7; }
+input:disabled { color: var(--muted); background: var(--surface-soft); cursor: not-allowed; }
+.fxline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+
+.holdings-editor { display: grid; gap: 8px; }
+.row {
+  display: grid;
+  grid-template-columns: 28px minmax(88px, 1.2fr) 96px minmax(90px, .9fr) 32px 32px;
+  grid-template-areas: "drag where ccy amount add remove";
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  transition: border-color .15s ease, background .15s ease, opacity .15s ease;
+}
+.row:focus-within { border-color: #cfd5ff; background: var(--surface-tint); }
+.row.dragging { opacity: .55; }
+.row.drop-target { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.row .drag { grid-area: drag; }
+.row .where { grid-area: where; }
+.row .ccy-toggle { grid-area: ccy; }
+.row .amt { grid-area: amount; }
+.row .add { grid-area: add; }
+.row .rm { grid-area: remove; }
+.drag {
+  width: 28px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #9aa3b3;
+  font-size: 13px;
+  font-weight: 800;
   cursor: grab;
-  user-select:none;
+  user-select: none;
 }
-.drag:active{ cursor: grabbing; }
-.row.dragging{
-  opacity:.65;
-  transform: scale(.995);
+.drag:hover { color: var(--muted-strong); background: #eef1f5; }
+.drag:active { cursor: grabbing; }
+.row input { min-height: 36px; padding: 7px 9px; }
+.row .add, .row .rm {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 9px;
+  font-size: 18px;
+  font-weight: 500;
 }
-.row.drop-target{
-  outline: 2px dashed rgba(129,140,248,.55);
-  outline-offset: 4px;
-  border-radius:14px;
-}
+.row .add { border-color: #bbf7d0; color: var(--ok); background: var(--ok-soft); }
+.row .add:hover { border-color: #86efac; color: #047857; background: #dcfce7; box-shadow: none; }
 
+.ccy-toggle {
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.ccy-toggle .ccy-btn {
+  min-height: 34px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
+  box-shadow: none;
+  font-size: 10px;
+  font-weight: 800;
+  transform: none;
+}
+.ccy-toggle .ccy-btn + .ccy-btn { border-left: 1px solid var(--line); }
+.ccy-toggle .ccy-btn:hover { color: var(--text); background: var(--surface-soft); box-shadow: none; transform: none; }
+.ccy-toggle .ccy-btn.active { color: #fff; background: var(--primary); }
 
-button#addHoldingBtn{
-  background: linear-gradient(180deg, rgba(16,185,129,.95), rgba(5,150,105,.98));
-  border-color: rgba(16,185,129,.70);
-  color: #ffffff;
-  font-weight: 900;
+.total-preview {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 13px;
+  border: 1px solid #dce1ff;
+  border-radius: 12px;
+  background: var(--primary-soft);
 }
-button#addHoldingBtn:hover{
-  background: linear-gradient(180deg, rgba(16,185,129,1), rgba(4,120,87,1));
-  border-color: rgba(5,150,105,.85);
+.total-preview.expense-preview { border-color: #fee2e2; background: #fff7f7; }
+.total-preview .label { color: var(--muted-strong); font-size: 10px; font-weight: 800; }
+.total-preview .helper { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.total-preview .value {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  white-space: nowrap;
 }
+.total-preview .value.bad, #feTotal { color: var(--bad); }
 
+.expense-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, .75fr) auto;
+  grid-template-areas:
+    "name amount add"
+    "memo memo add";
+  gap: 8px;
+}
+#feName { grid-area: name; }
+#feAmt { grid-area: amount; }
+#feMemo { grid-area: memo; }
+#feAddBtn { grid-area: add; align-self: stretch; min-width: 58px; }
+.point-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "protocol add"
+    "dates add";
+  gap: 8px;
+}
+#pfProtocol { grid-area: protocol; }
+.point-dates { grid-area: dates; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#pfAddBtn { grid-area: add; align-self: stretch; min-width: 58px; }
 
+.compact-table {
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+table { border-collapse: separate; border-spacing: 0; }
+.compact-table table { width: 100%; table-layout: fixed; }
+th, td { border-bottom: 1px solid var(--line); }
+.compact-table th {
+  padding: 9px 8px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 9px;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+}
+.compact-table td {
+  padding: 10px 8px;
+  color: var(--muted-strong);
+  background: var(--surface);
+  font-size: 10px;
+  vertical-align: middle;
+}
+.compact-table tr:last-child td { border-bottom: 0; }
+.fixed-expenses-wrap th:nth-child(1), .fixed-expenses-wrap td:nth-child(1) { width: 24%; }
+.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2) { width: 25%; text-align: right; }
+.fixed-expenses-wrap th:nth-child(3), .fixed-expenses-wrap td:nth-child(3) { width: 33%; }
+.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4) { width: 18%; text-align: center; }
+.fe-name { color: var(--text) !important; font-weight: 700; }
+.fe-amount { color: var(--bad) !important; font-weight: 800; white-space: nowrap; }
+.fe-memo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.point-farming-wrap th:nth-child(1), .point-farming-wrap td:nth-child(1) { width: 34%; }
+.point-farming-wrap th:nth-child(2), .point-farming-wrap td:nth-child(2) { width: 46%; }
+.point-farming-wrap th:nth-child(3), .point-farming-wrap td:nth-child(3) { width: 20%; text-align: center; }
+.pf-protocol { color: var(--text) !important; font-weight: 800; overflow-wrap: anywhere; }
+.pf-date-range { display: flex; align-items: center; gap: 4px; color: var(--muted-strong); font-size: 9px; font-weight: 700; white-space: nowrap; }
+.range-arrow { color: #a4adbc; }
+.pf-status { margin-top: 4px; color: var(--muted); font-size: 9px; font-weight: 800; }
+.pf-status.is-active { color: var(--ok); }
+.pf-status.is-soon { color: var(--warning); }
+.pf-status.is-ended { color: var(--bad); }
+.progress-track { height: 4px; margin-top: 6px; overflow: hidden; border-radius: 999px; background: #edf0f4; }
+.progress-bar { display: block; height: 100%; border-radius: inherit; background: #94a3b8; }
+.progress-bar.is-active { background: var(--ok); }
+.progress-bar.is-soon { background: var(--warning); }
+.progress-bar.is-ended { background: var(--bad); }
+.compact-actions { text-align: center; }
+.compact-actions button { min-height: 28px; padding: 5px 8px; }
+.empty-cell { padding: 18px 12px !important; color: var(--muted) !important; text-align: center !important; font-weight: 600 !important; }
 
-/* === Force white text + subtle text shadow for primary & danger === */
-button.primary,
-button#saveBtn{
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+.dashboard-body {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-
-button.danger,
-button#clearAllBtn{
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,.18);
+.kpi {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
-
-
-/* Drive status pill */
-.drivepill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
+.kpi .box {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 14px 14px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
-.drivepill .dot{
-  width:10px;
-  height:10px;
-  border-radius:999px;
-  background: rgba(148,163,184,.9);
-  box-shadow: 0 0 0 3px rgba(148,163,184,.18);
+.kpi .box::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #94a3b8;
 }
-.drivepill.connected .dot{
-  background: rgba(16,185,129,.95);
-  box-shadow: 0 0 0 3px rgba(16,185,129,.18);
-}
-.drivepill.needs .dot{
-  background: rgba(245,158,11,.95);
-  box-shadow: 0 0 0 3px rgba(245,158,11,.18);
-}
-
-/* === Mobile responsiveness polish === */
-@media (max-width: 560px){
-  .topbar{
-    flex-direction: column;
-    align-items: flex-start;
-    gap:10px;
-    padding:12px 12px;
-  }
-  .top-actions{
-    width:100%;
-    justify-content:flex-start;
-    gap:8px;
-  }
-  .top-actions button{
-    flex: 1 1 auto;
-    text-align:center;
-  }
-
-  .layout{
-    padding:10px 12px 14px;
-    gap:10px;
-  }
-
-  .card .bd{ padding:10px; }
-  .grid2{ grid-template-columns: 1fr; }
-
-  .kpi{ grid-template-columns: 1fr; }
-
-  .charts{ grid-template-columns: 1fr; }
-  .canvas-wrap{ height:200px; min-height:160px; }
-
-  /* Let right panel scroll naturally on mobile */
-  .right .bd{ overflow:auto; }
-
-  /* Table: keep scroll inside container and reduce min width */
-  table{ min-width: 720px; }
-}
-
-/* Extra small screens */
-@media (max-width: 380px){
-  .title{ font-size:18px; }
-  button{ padding:9px 10px; }
-  .canvas-wrap{ height:180px; }
-  table{ min-width: 680px; }
-}
-
-/* Ensure date column centered */
-table thead th:first-child,
-table tbody td:first-child{
-  text-align:center !important;
-}
-
-/* Better responsiveness on smaller desktop windows */
-@media (max-width: 1200px){
-  .layout{
-    grid-template-columns: 1fr; /* stack panels */
-  }
-  .left .bd{ max-height: none; }
-  .right .bd{ overflow:auto; }
-  .charts{ grid-template-columns: 1fr; }
-  .canvas-wrap{ height:220px; }
-  table{ min-width: 760px; }
-}
-@media (max-width: 900px){
-  .layout{ padding:10px 12px 14px; }
-  table{ min-width: 720px; }
-}
-
-/* === Strong chart resize override (responds to window width/height) === */
-.charts{ align-items: stretch; }
-.chartbox{ min-height:0; display:flex; flex-direction:column; }
-.chartbox .canvas-wrap{
-  /* width-driven height so shrinking window reduces chart size */
-  height: clamp(160px, 28vw, 320px) !important;
-  min-height: 150px !important;
-  max-height: 340px !important;
-}
-/* If viewport height is small, cap further */
-@media (max-height: 760px){
-  .chartbox .canvas-wrap{ height: clamp(150px, 24vw, 260px) !important; }
-}
-@media (max-height: 660px){
-  .chartbox .canvas-wrap{ height: clamp(140px, 22vw, 230px) !important; }
-}
-/* Mobile: keep comfortable */
-@media (max-width: 560px){
-  .chartbox .canvas-wrap{ height: clamp(170px, 40vw, 260px) !important; }
-}
-
-.holdings-list{
-  padding-left:0 !important;
-  list-style-position: inside;
-  text-align:center !important;
-}
-
-
-
-/* === Holdings header/value perfect center alignment (force) === */
-td:nth-child(7){ text-align:center !important; }
-td:nth-child(7) details{
-  display:block !important;
-  width:100% !important;
-  text-align:center !important;
-}
-td:nth-child(7) summary{
-  display:flex !important;
-  width:100% !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:0 !important;
-  margin:0 auto !important;
-  list-style:none !important;
-  text-align:center !important;
-}
-td:nth-child(7) summary::-webkit-details-marker{ display:none !important; }
-td:nth-child(7) summary::marker{ content:"" !important; }
-td:nth-child(7) summary::before{ content:"" !important; display:none !important; }
-td:nth-child(7) .holdings-list{
-  width:100% !important;
-  padding-left:0 !important;
-  margin:8px 0 0 !important;
-  text-align:center !important;
-  list-style-position: inside;
-}
-
-/* === Force table header alignment (override sticky header defaults) === */
-table thead th{ text-align:center !important; }
-table thead th:nth-child(7){ text-align:center !important; } /* '예치 현황' */
-
-/* === Column 7: remove horizontal padding so header/body share identical center axis === */
-table thead th:nth-child(7),
-table tbody td:nth-child(7){
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-/* === Fix: details max-width was constraining holdings cell and shifting center === */
-td:nth-child(7) details{
-  max-width: none !important;
-}
-
-/* === Fold/mobile: prevent chart/table overlap & squish === */
-@media (pointer: coarse){
-  body{ overflow:auto !important; }
-  .app{ height:auto !important; overflow:visible !important; }
-  .layout{ grid-template-columns: 1fr !important; }
-  .right .bd{
-    display:block !important;
-    overflow:visible !important;
-  }
-  .charts{
-    display:block !important;
-    min-height:auto !important;
-  }
-  .chartbox{
-    overflow:hidden !important;
-    margin-bottom:12px !important;
-  }
-  .chartbox .canvas-wrap{
-    position:relative !important;
-    height:260px !important;
-    min-height:240px !important;
-    overflow:hidden !important;
-  }
-  .chartbox canvas{
-    display:block;
-  }
-  /* Disable sticky headers on mobile to avoid overlay artifacts */
-  thead th{
-    position:static !important;
-    top:auto !important;
-    z-index:auto !important;
-  }
-  /* Table spacing */
-  .tablewrap{
-    margin-top:10px !important;
-  }
-  table{ min-width: 720px !important; }
-}
-
-/* Smaller height landscape */
-@media (pointer: coarse) and (max-height: 720px){
-  .chartbox .canvas-wrap{
-    height:210px !important;
-    min-height:190px !important;
-  }
-}
-
-@media (max-width: 560px){
-  #fxm{ width: 100% !important; }
-}
-
-
-/* Fixed expenses table wrapper */
-#feTbody{ }
-.fixed-expenses-wrap{ overflow-y:auto !important; overflow-x:hidden !important; }
-.fixed-expenses-wrap table{ width:100% !important; table-layout:fixed !important; }
-.fixed-expenses-wrap th, .fixed-expenses-wrap td{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.fixed-expenses-wrap th:nth-child(1), .fixed-expenses-wrap td:nth-child(1){ width:28%; }
-.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ width:22%; text-align:right; }
-.fixed-expenses-wrap th:nth-child(3), .fixed-expenses-wrap td:nth-child(3){ width:40%; }
-.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){ width:10%; text-align:right; }
-
-/* Holdings row add button */
-.row .add{
-  background: rgba(16,185,129,.12);
-  border-color: rgba(16,185,129,.28);
-  color: #065f46;
-  font-weight: 900;
-}
-.row .add:hover{
-  background: rgba(16,185,129,.18);
-  border-color: rgba(16,185,129,.38);
-}
-
-/* Fixed expenses delete button alignment */
-.fixed-expenses-wrap td:nth-child(4){
-  text-align:center !important;
-  vertical-align: middle !important;
-}
-.fixed-expenses-wrap td:nth-child(4) button{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* === Fixed expenses list: fully visible, centered, aligned delete button === */
-.fixed-expenses-wrap{ overflow:visible !important; max-height:none !important; }
-.fixed-expenses-wrap table{ min-width:0 !important; }
-.fixed-expenses-wrap thead th, .fixed-expenses-wrap tbody td{
-  text-align:center !important;
-  vertical-align: middle !important;
-}
-.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ text-align:center !important; }
-.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){ text-align:center !important; }
-.fixed-expenses-wrap td:nth-child(4) button{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  margin:0 auto !important;
-}
-
-/* === Fixed expenses delete button: hard center + prevent clipping === */
-.fixed-expenses-wrap th:nth-child(4),
-.fixed-expenses-wrap td:nth-child(4){
-  padding-left: 6px !important;
-  padding-right: 6px !important;
-}
-.fixed-expenses-wrap td:nth-child(4){
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-}
-.fixed-expenses-wrap td:nth-child(4) button{
-  width: auto !important;
-  min-width: 64px;
-  padding: 10px 14px !important;
-  border-radius: 999px !important;
-}
-
-/* === Fixed expenses delete button: render normally, centered (no flex cell) === */
-.fixed-expenses-wrap td:nth-child(4){
-  display: table-cell !important;
-  text-align:center !important;
-  vertical-align: middle !important;
-}
-.fixed-expenses-wrap td:nth-child(4) button{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  margin: 0 auto !important;
-  min-width: 64px;
-  padding: 10px 14px !important;
-}
-
-/* === Fixed expenses table: prevent right-side clipping, align cleanly === */
-.fixed-expenses-wrap{
-  padding: 0 12px 0 0 !important; /* give breathing room on the right */
-}
-.fixed-expenses-wrap table{
-  width:100% !important;
-  table-layout: fixed !important;
-}
-.fixed-expenses-wrap th, .fixed-expenses-wrap td{
-  overflow:hidden;
+.kpi .kpi-total::before { background: var(--primary); }
+.kpi .kpi-daily::before { background: var(--ok); }
+.kpi .kpi-cumulative::before { background: #0ea5e9; }
+.kpi .kpi-expense::before { background: var(--bad); }
+.kpi .name { color: var(--muted); font-size: 10px; font-weight: 800; }
+.kpi .val {
+  margin-top: 8px;
+  overflow: hidden;
+  color: var(--text);
+  font-size: clamp(17px, 1.35vw, 23px);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.fixed-expenses-wrap th:nth-child(1), .fixed-expenses-wrap td:nth-child(1){ width: 22% !important; }
-.fixed-expenses-wrap th:nth-child(2), .fixed-expenses-wrap td:nth-child(2){ width: 22% !important; }
-.fixed-expenses-wrap th:nth-child(3), .fixed-expenses-wrap td:nth-child(3){ width: 40% !important; }
-.fixed-expenses-wrap th:nth-child(4), .fixed-expenses-wrap td:nth-child(4){
-  width: 16% !important;
-  min-width: 110px;
-  overflow: visible !important;    /* allow button to render fully */
-  text-overflow: clip !important;
-}
-.fixed-expenses-wrap td:nth-child(4){
-  padding-right: 14px !important;  /* ensure button doesn't touch edge */
-}
-.fixed-expenses-wrap td:nth-child(4) button{
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-/* === Monthly expense red styling === */
-#kpiFixed,
-#kpiFixedSub{
-  color: var(--bad) !important;
-}
-
-/* 월간지출 테이블 컬럼 (8번째 컬럼) */
-#tbody tr td:nth-child(8){
-  color: var(--bad) !important;
-}
-
-
-/* === Left panel fixed expense total red === */
-#feTotal{
-  color: var(--bad) !important;
-}
-
-
-/* === Point farming table === */
-.point-farming-wrap{ overflow:visible !important; max-height:none !important; padding: 0 12px 0 0 !important; }
-.point-farming-wrap table{ width:100% !important; table-layout: fixed !important; min-width:0 !important; }
-.point-farming-wrap th, .point-farming-wrap td{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; text-align:center !important; vertical-align: middle !important; }
-
-
-/* === Point farming: consistent center alignment + polish === */
-.point-farming-wrap table{
-  width:100% !important;
-  table-layout: fixed !important;
-  min-width: 0 !important;
-}
-.point-farming-wrap th,
-.point-farming-wrap td{
-  text-align:center !important;
-  vertical-align: middle !important;
-  padding: 12px !important;
-  line-height: 1.25 !important;
-}
-.point-farming-wrap td.pf-protocol{
-  font-weight: 1000;
-}
-.point-farming-wrap td.pf-points{
-  font-weight: 1000;
-  color: var(--accent-strong);
-}
-.point-farming-wrap td.pf-period{
-  color: var(--muted) !important;
-  font-weight: 700;
-}
-.point-farming-wrap td.pf-actions button{
-  display:inline-flex !important;
-  margin: 0 auto !important;
-}
-
-
-/* === Point farming: FINAL force center for every column === */
-.point-farming-wrap table thead th,
-.point-farming-wrap table tbody td{
-  text-align: center !important;
-}
-.point-farming-wrap table thead th:nth-child(1),
-.point-farming-wrap table tbody td:nth-child(1),
-.point-farming-wrap table thead th:nth-child(2),
-.point-farming-wrap table tbody td:nth-child(2),
-.point-farming-wrap table thead th:nth-child(3),
-.point-farming-wrap table tbody td:nth-child(3),
-.point-farming-wrap table thead th:nth-child(4),
-.point-farming-wrap table tbody td:nth-child(4){
-  text-align: center !important;
-}
-
-
-/* === Emphasis styling: Fixed expenses + Holdings details === */
-
-/* Fixed expenses table: item bold, amount emphasized, memo muted */
-.fixed-expenses-wrap tbody td:nth-child(1){
-  font-weight: 1000 !important;
-  color: var(--text) !important;
-}
-.fixed-expenses-wrap tbody td:nth-child(2){
-  font-weight: 1000 !important;
-  color: var(--accent-strong) !important;
-}
-.fixed-expenses-wrap tbody td:nth-child(3){
-  color: var(--muted) !important;
-}
-
-/* Holdings details in dashboard: where bold, amount emphasized, meta muted */
-.holdings-list li .h-where{
-  font-weight: 1000;
-  color: var(--text);
-}
-.holdings-list li .h-amt{
-  font-weight: 1000;
-  color: var(--accent-strong);
-}
-.holdings-list li .h-ccy{
-  font-weight: 900;
+.kpi .sub {
+  min-height: 14px;
+  margin-top: 6px;
+  overflow: hidden;
   color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.holdings-list li .h-meta{
-  color: var(--muted);
-  font-weight: 700;
+#kpiFixed, #kpiFixedSub { color: var(--bad); }
+
+.charts {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 0;
 }
-.holdings-list li .h-krwapprox{
+.chartbox {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px 0;
+}
+.ctitle { margin: 0; color: var(--muted-strong); font-size: 11px; font-weight: 800; }
+.chart-unit { color: #9aa3b3; font-size: 9px; font-weight: 700; }
+.canvas-wrap {
+  position: relative;
+  height: clamp(190px, 22vh, 260px);
+  min-height: 170px;
+  padding: 8px 10px 10px;
+}
+.canvas-wrap canvas { display: block; }
+
+.records-card {
+  flex: 1 1 auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.records-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--line);
+}
+.records-head h3 { margin: 0; font-size: 11px; font-weight: 800; }
+.record-count { color: var(--muted); font-size: 10px; font-weight: 700; }
+.tablewrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.tablewrap table { width: 100%; min-width: 1120px; }
+.tablewrap th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 11px 10px;
   color: var(--muted);
-  font-weight: 700;
+  background: #f7f9fc;
+  font-size: 9px;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+}
+.tablewrap td {
+  padding: 11px 10px;
+  color: var(--muted-strong);
+  background: var(--surface);
+  font-size: 10px;
+  vertical-align: middle;
+}
+.tablewrap tbody tr:hover td { background: #fafbfe; }
+.tablewrap tbody tr:last-child td { border-bottom: 0; }
+th.num, td.num { text-align: right; }
+.date-cell, .actions-cell { text-align: center; }
+.strong-cell { color: var(--text) !important; font-weight: 800; }
+.expense-cell { color: var(--bad) !important; font-weight: 700; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted-strong);
+  background: var(--surface-soft);
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.inline-actions { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.inline-actions button { min-height: 29px; padding: 5px 8px; }
+.holdings-cell { min-width: 210px; }
+details { max-width: 320px; }
+summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "›"; display: inline-block; color: #9aa3b3; font-size: 14px; transition: transform .15s ease; }
+details[open] summary::before { transform: rotate(90deg); }
+.holdings-list {
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+.holdings-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line);
+}
+.h-where { color: var(--text); font-weight: 700; }
+.h-value { display: grid; justify-items: end; gap: 2px; text-align: right; }
+.h-amt { color: var(--primary); font-weight: 800; }
+.h-ccy { color: var(--muted); font-weight: 700; }
+.h-krwapprox { color: var(--muted); font-size: 9px; }
+.dashboard-empty { height: 100px; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, .42);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal {
+  width: min(480px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 28px 70px rgba(15, 23, 42, .24);
+}
+.modal .mh, .modal .mf { display: flex; align-items: center; gap: 8px; padding: 13px 14px; }
+.modal .mh { justify-content: space-between; border-bottom: 1px solid var(--line); }
+.modal .mttl { font-size: 13px; font-weight: 800; }
+.modal .mb { padding: 20px 14px; }
+.modal .mf { justify-content: flex-end; flex-wrap: wrap; border-top: 1px solid var(--line); background: var(--surface-soft); }
+
+.toast-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0;
+  background: rgba(15, 23, 42, .16);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transition: opacity .18s ease;
+}
+.toast-backdrop.show { opacity: 1; }
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1001;
+  min-width: 250px;
+  max-width: min(440px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(23, 32, 51, .94);
+  box-shadow: 0 24px 54px rgba(15, 23, 42, .28);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
+  white-space: pre-wrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.98);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.toast.ok { background: rgba(5, 150, 105, .95); }
+.toast.bad { background: rgba(220, 38, 38, .95); }
+
+@media (max-height: 760px) and (min-width: 1181px) {
+  .topbar { min-height: 62px; }
+  .workspace { padding-top: 12px; padding-bottom: 12px; }
+  .panel-header { min-height: 58px; padding-block: 11px; }
+  .input-panel .panel-body, .dashboard-panel .panel-body { padding: 11px; }
+  .canvas-wrap { height: 175px; min-height: 155px; }
+  .kpi .box { padding-block: 11px; }
 }
 
+@media (max-width: 1180px) {
+  body { overflow: auto; }
+  .app-shell { height: auto; min-height: 100dvh; }
+  .workspace { grid-template-columns: minmax(0, 1fr); min-height: auto; }
+  .panel { min-height: auto; overflow: visible; }
+  .input-panel .panel-body, .dashboard-panel .panel-body { overflow: visible; }
+  .dashboard-body { height: auto; }
+  .canvas-wrap { height: 250px; }
+  .records-card { min-height: 360px; }
+}
+
+@media (max-width: 760px) {
+  .topbar { align-items: flex-start; padding: 12px 14px; }
+  .brand-subtitle { white-space: normal; }
+  .top-actions { max-width: 52%; }
+  .workspace { gap: 12px; padding: 12px 14px 16px; }
+  .kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .charts { grid-template-columns: minmax(0, 1fr); }
+  .canvas-wrap { height: 230px; }
+}
+
+@media (max-width: 560px) {
+  .topbar { flex-direction: column; }
+  .top-actions { width: 100%; max-width: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .top-actions button { width: 100%; }
+  .workspace { padding-inline: 10px; }
+  .panel { border-radius: 16px; }
+  .panel-header { align-items: flex-start; padding: 13px; }
+  .panel-header .inline-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .input-panel .panel-body, .dashboard-panel .panel-body { padding: 10px; }
+  .form-section { padding: 12px; }
+  .field-grid { grid-template-columns: minmax(0, 1fr); }
+  .row {
+    grid-template-columns: 28px minmax(0, 1fr) 32px;
+    grid-template-areas:
+      "drag where remove"
+      ". ccy add"
+      ". amount amount";
+  }
+  .expense-form {
+    grid-template-columns: minmax(0, 1fr) minmax(100px, .75fr);
+    grid-template-areas:
+      "name amount"
+      "memo memo"
+      "add add";
+  }
+  #feAddBtn { min-height: 38px; }
+  .point-form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "protocol" "dates" "add";
+  }
+  #pfAddBtn { min-height: 38px; }
+  .section-heading { align-items: center; }
+  .month-picker { width: 126px; }
+  .panel-footer { flex-wrap: wrap; }
+  .panel-footer #clearAllBtn { margin-left: 0; }
+  .panel-footer button { flex: 1 1 auto; }
+  .kpi { gap: 8px; }
+  .kpi .box { padding: 12px; }
+  .kpi .val { font-size: 17px; }
+  .records-card { min-height: 320px; }
+}
+
+@media (max-width: 390px) {
+  .top-actions { grid-template-columns: 1fr; }
+  .kpi { grid-template-columns: minmax(0, 1fr); }
+  .point-dates { grid-template-columns: minmax(0, 1fr); }
+  .total-preview { align-items: flex-start; flex-direction: column; }
+}
 </style>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=14423"></script>
 </head>
 <body>
-<div class="app">
-  <div class="topbar">
-    <h1 class="title">투자 기록</h1>
-    <div class="top-actions">
-      <button id="driveBtn" class="mini">☁ Drive</button>
-      <button id="exportBtn" class="mini">📤 내보내기</button>
-      <button id="importBtn" class="mini">📥 가져오기</button>
-      <input id="importFile" type="file" accept=".json" class="hidden" />
-    </div>
-  </div>
 
-  <div class="layout">
-    <div class="card left">
-      <div class="hd">
-        <h2>입력</h2>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">₩</div>
+      <div class="brand-copy">
+        <h1 class="title">투자 기록</h1>
+        <p class="brand-subtitle">자산 · 고정지출 · 포인트 파밍 통합 관리</p>
+      </div>
+    </div>
+    <div class="top-actions" aria-label="데이터 관리">
+      <button type="button" id="driveBtn" class="mini drivepill">
+        <span id="driveDot" class="dot" aria-hidden="true"></span>
+        <span id="driveLabel">Drive</span>
+      </button>
+      <button type="button" id="exportBtn" class="mini"><span class="button-icon" aria-hidden="true">↓</span>내보내기</button>
+      <button type="button" id="importBtn" class="mini"><span class="button-icon" aria-hidden="true">↑</span>가져오기</button>
+      <input id="importFile" type="file" accept=".json,application/json" class="hidden" />
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel input-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <h2>기록 입력</h2>
+          <p>일자별 자산과 월별 지출 정보를 관리합니다.</p>
+        </div>
         <div class="inline-actions">
-          <button id="prevBtn" class="mini">⏪ 전일 불러오기</button>
-          <button id="resetFormBtn" class="mini">초기화</button>
+          <button type="button" id="prevBtn" class="mini">전일 불러오기</button>
+          <button type="button" id="resetFormBtn" class="mini">초기화</button>
         </div>
       </div>
-      <div class="bd">
-        <div class="grid2">
-          <div class="field">
-            <label>날짜</label>
-            <input id="date" type="date" />
-          </div>
-          <div class="field" id="fxField">
-            <label>USDT/KRW 종가</label>
-            <div class="fxline">
-              <input id="fx" type="number" inputmode="decimal" placeholder="자동" />
-              <button id="fxBtn" class="mini">자동</button>
+
+      <div class="panel-body">
+        <section class="form-section">
+          <div class="section-heading">
+            <div>
+              <h3>기준 정보</h3>
+              <p>기록 날짜와 USDT 환산 기준을 선택합니다.</p>
             </div>
           </div>
-        </div>
-
-        <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <div class="muted" style="font-size:11px; font-weight:900;">예치 현황</div>
-        </div>
-        <div id="holdings"></div>
-
-        <div class="total-preview" style="margin-top:12px;">
-          <div>
-            <div class="label">총 평가금액(KRW)</div>
-            <div class="muted" id="totalSub" style="font-size:11px; margin-top:6px;"></div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="date">날짜</label>
+              <input id="date" type="date" />
+            </div>
+            <div class="field" id="fxField">
+              <label for="fx">USDT/KRW 종가</label>
+              <div class="fxline">
+                <input id="fx" type="number" inputmode="decimal" step="any" placeholder="자동 조회" />
+                <button type="button" id="fxBtn" class="mini">조회</button>
+              </div>
+            </div>
           </div>
-          <div id="totalPreview" class="value">—</div>
-        </div>
+        </section>
 
-        <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-  <div class="muted" style="font-size:11px; font-weight:900;">고정지출</div>
-  <div style="display:flex; gap:8px; align-items:center;">
-    <input id="fxm" type="month" style="width:150px; padding:9px 10px;" />
-  </div>
-</div>
+        <section class="form-section">
+          <div class="section-heading">
+            <div>
+              <h3>예치 현황</h3>
+              <p>예치처, 통화, 금액을 입력합니다. 순서는 드래그로 변경할 수 있습니다.</p>
+            </div>
+          </div>
+          <div id="holdings" class="holdings-editor"></div>
+          <div class="total-preview">
+            <div>
+              <div class="label">총 평가금액</div>
+              <div class="helper" id="totalSub"></div>
+            </div>
+            <div id="totalPreview" class="value">—</div>
+          </div>
+        </section>
 
-<div style="margin-top:10px; display:grid; grid-template-columns: 1.1fr .8fr 1.2fr auto; gap:8px; align-items:center;">
-  <input id="feName" type="text" placeholder="항목명 (예: 월세)" />
-  <input id="feAmt" type="number" inputmode="numeric" placeholder="금액(KRW)" />
-  <input id="feMemo" type="text" placeholder="메모(선택)" />
-  <button id="feAddBtn" class="mini">추가</button>
-</div>
+        <section class="form-section">
+          <div class="section-heading">
+            <div>
+              <h3>고정지출</h3>
+              <p>선택한 월의 반복 지출을 관리합니다.</p>
+            </div>
+            <input id="fxm" class="month-picker" type="month" aria-label="고정지출 기준 월" />
+          </div>
 
-<div class="total-preview" style="margin-top:10px;">
-  <div>
-    <div class="label">선택 고정지출 합계</div>
-    <div class="muted" id="feSub" style="font-size:11px; margin-top:6px;">—</div>
-  </div>
-  <div id="feTotal" class="value">—</div>
-</div>
+          <div class="expense-form">
+            <input id="feName" type="text" placeholder="항목명 (예: 월세)" aria-label="고정지출 항목명" />
+            <input id="feAmt" type="number" inputmode="numeric" min="0" placeholder="금액 (KRW)" aria-label="고정지출 금액" />
+            <input id="feMemo" type="text" placeholder="메모 (선택)" aria-label="고정지출 메모" />
+            <button type="button" id="feAddBtn" class="mini secondary">추가</button>
+          </div>
 
-<div style="margin-top:10px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:visible; max-height:none;" class="fixed-expenses-wrap">
-  <table style="width:100%; border-collapse:separate; border-spacing:0; min-width:0; table-layout:fixed;">
-    <thead>
-      <tr>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:left;">항목</th>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:right;">금액</th>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:left;">메모</th>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:right;">관리</th>
-      </tr>
-    </thead>
-    <tbody id="feTbody">
-      <tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>
-    </tbody>
-  </table>
+          <div class="total-preview expense-preview">
+            <div>
+              <div class="label">선택 월 고정지출</div>
+              <div class="helper" id="feSub">—</div>
+            </div>
+            <div id="feTotal" class="value">—</div>
+          </div>
 
-<!-- === Point Farming (DeFi) === -->
-<div style="margin-top:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-  <div class="muted" style="font-size:11px; font-weight:900;">포인트 파밍</div>
-</div>
+          <div class="compact-table fixed-expenses-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>항목</th>
+                  <th>금액</th>
+                  <th>메모</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="feTbody">
+                <tr><td colspan="4" class="empty-cell">등록된 고정지출이 없습니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-<div style="margin-top:10px; display:grid; grid-template-columns: 1.1fr .8fr 1.2fr auto; gap:8px; align-items:center;">
-  <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" />
-  
-  
-<div style="display:flex; gap:6px;">
-  <input id="pfStart" type="date" />
-  <input id="pfEnd" type="date" />
-</div>
+        <section class="form-section">
+          <div class="section-heading">
+            <div>
+              <h3>포인트 파밍</h3>
+              <p>프로토콜별 진행 기간과 남은 일수를 확인합니다.</p>
+            </div>
+          </div>
 
-  <button id="pfAddBtn" class="mini">추가</button>
-</div>
+          <div class="point-form">
+            <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" aria-label="포인트 파밍 프로토콜" />
+            <div class="point-dates">
+              <input id="pfStart" type="date" aria-label="포인트 파밍 시작일" />
+              <input id="pfEnd" type="date" aria-label="포인트 파밍 종료일" />
+            </div>
+            <button type="button" id="pfAddBtn" class="mini secondary">추가</button>
+          </div>
 
-<div style="margin-top:10px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:visible; max-height:none;" class="point-farming-wrap">
-  <table style="width:100%; border-collapse:separate; border-spacing:0; min-width:0; table-layout:fixed;">
-    <thead>
-      <tr>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">프로토콜</th>
-        
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">기간</th>
-        <th style="position:sticky; top:0; background:var(--panel2); font-weight:900; color:var(--muted); padding:10px; text-align:center;">관리</th>
-      </tr>
-    </thead>
-    <tbody id="pfTbody">
-      <tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>
-    </tbody>
-  </table>
-</div>
-
-</div>
-
-        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="saveBtn" class="primary">💾 저장</button>
-          <button id="cancelEditBtn" class="mini hidden">편집 취소</button>
-          <button id="clearAllBtn" class="danger">🗑 전체 삭제</button>
-        </div>
+          <div class="compact-table point-farming-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>프로토콜</th>
+                  <th>기간</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="pfTbody">
+                <tr><td colspan="3" class="empty-cell">등록된 파밍 일정이 없습니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-    </div>
 
-    <div class="card right">
-      <div class="hd">
-        <h2>대시보드</h2>
+      <div class="panel-footer">
+        <button type="button" id="saveBtn" class="primary">저장</button>
+        <button type="button" id="cancelEditBtn" class="mini hidden">편집 취소</button>
+        <button type="button" id="clearAllBtn" class="danger">전체 삭제</button>
       </div>
-      <div class="bd">
+    </aside>
+
+    <section class="panel dashboard-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <h2>대시보드</h2>
+          <p>자산 변동과 월 고정지출을 한눈에 확인합니다.</p>
+        </div>
+        <span class="panel-meta">자동 계산</span>
+      </div>
+
+      <div class="panel-body dashboard-body">
         <div class="kpi">
-          <div class="box">
+          <div class="box kpi-total">
             <div class="name">최근 총액</div>
             <div class="val" id="kpiTotal">—</div>
-            <div class="sub" id="kpiDate">—</div>
+            <div class="sub" id="kpiDate">기록 없음</div>
           </div>
-          <div class="box">
+          <div class="box kpi-daily">
             <div class="name">일일 변동</div>
             <div class="val" id="kpiDelta">—</div>
-            <div class="sub" id="kpiDeltaPct">—</div>
+            <div class="sub" id="kpiDeltaPct">비교할 기록 없음</div>
           </div>
-          <div class="box">
-            <div class="name">총 누적 변동</div>
+          <div class="box kpi-cumulative">
+            <div class="name">누적 변동</div>
             <div class="val" id="kpiCum">—</div>
-            <div class="sub" id="kpiCumPct">—</div>
+            <div class="sub" id="kpiCumPct">첫 기록 대비</div>
           </div>
-        
-
-<div class="box">
-  <div class="name">월 고정지출</div>
-  <div class="val" id="kpiFixed">—</div>
-  <div class="sub" id="kpiFixedSub">—</div>
-</div></div>
+          <div class="box kpi-expense">
+            <div class="name">월 고정지출</div>
+            <div class="val" id="kpiFixed">—</div>
+            <div class="sub" id="kpiFixedSub">최근 기록 월 기준</div>
+          </div>
+        </div>
 
         <div class="charts" id="chartsBox">
           <div class="chartbox">
-            <div class="ctitle">총액 추이 (KRW)</div>
+            <div class="chart-head">
+              <div class="ctitle">총액 추이</div>
+              <div class="chart-unit">KRW</div>
+            </div>
             <div class="canvas-wrap"><canvas id="chartTotal"></canvas></div>
           </div>
-<div class="chartbox">
-            <div class="ctitle">누적 변동률</div>
+          <div class="chartbox">
+            <div class="chart-head">
+              <div class="ctitle">누적 변동률</div>
+              <div class="chart-unit">%</div>
+            </div>
             <div class="canvas-wrap"><canvas id="chartDaily"></canvas></div>
           </div>
         </div>
 
-        <div class="tablewrap">
-          <table>
-            <thead>
-  <tr>
-    <th style="width:110px;">날짜</th>
-    <th class="num" style="width:140px;">총액(KRW)</th>
-    <th class="num" style="width:140px;">직전 대비 변동</th>
-    <th class="num" style="width:120px;">직전 대비 변동률</th>
-    <th class="num" style="width:120px;">총 누적 변동률</th>
-    <th class="num" style="width:120px;">USDT/KRW</th>
-    <th>예치 현황</th>
-    <th class="num" style="width:160px;">월간지출</th>
-  </tr>
-</thead>
-            <tbody id="tbody">
-              <tr><td colspan="9" class="muted">데이터 없음</td></tr>
-            </tbody>
-          </table>
-        </div>
-
+        <section class="records-card">
+          <div class="records-head">
+            <h3>투자 기록</h3>
+            <span id="recordCount" class="record-count">0건</span>
+          </div>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:104px; text-align:center;">날짜</th>
+                  <th class="num" style="width:130px;">총액</th>
+                  <th class="num" style="width:130px;">직전 대비</th>
+                  <th class="num" style="width:112px;">변동률</th>
+                  <th class="num" style="width:112px;">누적 변동률</th>
+                  <th class="num" style="width:110px;">USDT/KRW</th>
+                  <th style="width:230px;">예치 현황</th>
+                  <th class="num" style="width:126px;">월 고정지출</th>
+                  <th style="width:112px; text-align:center;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr><td colspan="9" class="empty-cell dashboard-empty">아직 저장된 투자 기록이 없습니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
-
-<div id="driveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Google 계정 연결">
+<div id="driveModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="driveModalTitle">
   <div class="modal">
     <div class="mh">
-      <div class="mttl">Google 계정 연결</div>
-      <button id="driveCloseBtn" class="mini">닫기</button>
+      <div id="driveModalTitle" class="mttl">Google Drive 연결</div>
+      <button type="button" id="driveCloseBtn" class="mini">닫기</button>
     </div>
     <div class="mb">
-      
-      <div id="driveStatus" class="muted" style="font-size:11px; font-weight:900; margin-top:10px;">—</div>
+      <div class="muted" style="font-size:11px; line-height:1.6;">연결하면 현재 데이터를 Drive의 전용 JSON 파일에 저장하고 불러올 수 있습니다.</div>
+      <div id="driveStatus" class="muted" style="font-size:11px; font-weight:800; margin-top:12px;">—</div>
     </div>
     <div class="mf">
-      <button id="driveConnectBtn" class="primary mini">연결</button>
-      <button id="driveLoadBtn" class="mini">불러오기</button>
-      <button id="driveSaveBtn" class="mini">Drive 저장</button>
-      <button id="driveDisconnectBtn" class="mini danger">연결 해제</button>
+      <button type="button" id="driveConnectBtn" class="primary mini">연결</button>
+      <button type="button" id="driveLoadBtn" class="mini">불러오기</button>
+      <button type="button" id="driveSaveBtn" class="mini">Drive 저장</button>
+      <button type="button" id="driveDisconnectBtn" class="mini danger">연결 해제</button>
     </div>
   </div>
 </div>
 
 <div id="toastBackdrop" class="toast-backdrop hidden"></div>
-
-<div id="toast" class="toast hidden"></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script>
 (() => {
@@ -1643,14 +1514,21 @@ const autoDriveBootstrap = async () => {
     const t = String(s ?? "").trim();
     return t.length > max ? t.slice(0, max) : t;
   };
-  const kstTodayStr = () => {
-    // For input default; acceptable without perfect KST conversion here.
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    return `${yyyy}-${mm}-${dd}`;
+  const datePartsInSeoul = () => {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Seoul",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date());
+    const map = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+    return { year: map.year, month: map.month, day: map.day };
   };
+  const kstTodayStr = () => {
+    const { year, month, day } = datePartsInSeoul();
+    return `${year}-${month}-${day}`;
+  };
+
   const addDays = (yyyyMmDd, days) => {
     const [y,m,d] = yyyyMmDd.split("-").map(Number);
     const dt = new Date(Date.UTC(y, (m-1), d));
@@ -1673,10 +1551,8 @@ const autoDriveBootstrap = async () => {
 
 const monthKeyFromDate = (yyyyMmDd) => (yyyyMmDd ? String(yyyyMmDd).slice(0,7) : "");
 const kstMonthStr = () => {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  return `${yyyy}-${mm}`;
+  const { year, month } = datePartsInSeoul();
+  return `${year}-${month}`;
 };
 const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
 
@@ -1746,53 +1622,46 @@ const renderPointFarming = () => {
   const tb = $("pfTbody");
   if (!tb) return;
 
-  
-const list = getPfListEffective(mk).slice().sort((a, b) => {
-  const getEnd = (p) => {
-    if (!p || !p.includes("~")) return Infinity;
-    return new Date(p.split("~")[1]);
-  };
-  return getEnd(a.period) - getEnd(b.period);
-});
+  const list = getPfListEffective(mk).slice().sort((a, b) => {
+    const getEnd = (p) => {
+      if (!p || !p.includes("~")) return Infinity;
+      const value = new Date(p.split("~")[1]).getTime();
+      return Number.isFinite(value) ? value : Infinity;
+    };
+    return getEnd(a.period) - getEnd(b.period);
+  });
 
   if (!list.length){
-    tb.innerHTML = '<tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>';
+    tb.innerHTML = '<tr><td colspan="3" class="empty-cell">등록된 파밍 일정이 없습니다.</td></tr>';
     return;
   }
 
   tb.innerHTML = "";
   for (const item of list){
     const tr = document.createElement("tr");
-    const pts = Number(item.points) || 0;
+    const [start = "", end = ""] = String(item.period || "").split("~").map(s => s.trim());
+    const days = getRemainingDays(item.period);
+    const progress = getProgress(item.period);
+    const statusClass = days === null ? "" : (days < 0 ? "is-ended" : (days <= 7 ? "is-soon" : "is-active"));
+    const statusText = days === null ? "기간 미설정" : (days < 0 ? "종료" : (days === 0 ? "오늘 종료" : `${days}일 남음`));
+    const shortDate = (value) => value ? value.replaceAll("-", ".") : "—";
+
     tr.innerHTML = `
-      <td class="pf-protocol" style="padding:12px; border-bottom:1px solid var(--border);">${escapeHtml(item.protocol||"")}</td>
-      
-      <td class="pf-period" style="padding:12px; border-bottom:1px solid var(--border);">
-
-${(() => {
-  if (!item.period || !item.period.includes("~")) return "";
-  return escapeHtml(item.period.split("~")[1].trim());
-})()}
-
-${(() => {
-  const days = getRemainingDays(item.period);
-  const progress = getProgress(item.period);
-  if (days === null) return "";
-  const color = days < 0 ? "var(--bad)" : (days <= 7 ? "#f59e0b" : "var(--ok)");
-  const txt = days < 0 ? "종료됨" : `${days}일 남음`;
-  return `
-    <div style="font-size:11px;margin-top:4px;font-weight:900;color:${color};">
-      ${txt}
-    </div>
-    ${progress !== null ? `
-    <div style="margin-top:6px;height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;">
-      <div style="width:${progress}%;height:100%;background:${color};"></div>
-    </div>` : ""}
-  `;
-})()}
-</td>
-      <td class="pf-actions" style="padding:12px; border-bottom:1px solid var(--border);">
-        <button class="mini danger" data-pf-del="${escapeHtml(item.id)}">삭제</button>
+      <td class="pf-protocol">${escapeHtml(item.protocol || "")}</td>
+      <td class="pf-period">
+        <div class="pf-date-range">
+          <span>${escapeHtml(shortDate(start))}</span>
+          <span class="range-arrow">→</span>
+          <span>${escapeHtml(shortDate(end))}</span>
+        </div>
+        <div class="pf-status ${statusClass}">${escapeHtml(statusText)}</div>
+        ${progress !== null ? `
+          <div class="progress-track" aria-hidden="true">
+            <span class="progress-bar ${statusClass}" style="width:${Math.round(progress)}%"></span>
+          </div>` : ""}
+      </td>
+      <td class="compact-actions">
+        <button type="button" class="mini danger" data-pf-del="${escapeHtml(item.id)}">삭제</button>
       </td>
     `;
     tr.querySelector("[data-pf-del]")?.addEventListener("click", () => {
@@ -1900,33 +1769,34 @@ const renderFixedExpenses = () => {
   const latest = sortEntriesAsc(entries).slice(-1)[0];
   const latestTotal = latest?.totalKrw;
   if (Number.isFinite(latestTotal) && total > 0){
-    subEl.textContent = `최근 총액 기준 약 ${(latestTotal/total).toFixed(1)}개월 커버`;
+    subEl.textContent = `최근 총액 기준 약 ${(latestTotal / total).toFixed(1)}개월 커버`;
   } else {
-    subEl.textContent = "—";
+    subEl.textContent = `${mk} 기준`;
   }
 
   if (!list.length){
-    tb.innerHTML = '<tr><td colspan="4" class="muted" style="padding:10px;">없음</td></tr>';
+    tb.innerHTML = '<tr><td colspan="4" class="empty-cell">등록된 고정지출이 없습니다.</td></tr>';
     return;
   }
+
   tb.innerHTML = "";
   for (const item of list){
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="padding:10px; border-bottom:1px solid var(--border);">${escapeHtml(item.name)}</td>
-      <td style="padding:10px; border-bottom:1px solid var(--border); text-align:right;">${fmtKRW(item.amount)}</td>
-      <td style="padding:10px; border-bottom:1px solid var(--border); color:var(--muted);">${escapeHtml(item.memo||"")}</td>
-      <td style="padding:10px; border-bottom:1px solid var(--border); text-align:right;">
-        <button class="mini danger" data-fe-del="${escapeHtml(item.id)}">삭제</button>
+      <td class="fe-name">${escapeHtml(item.name)}</td>
+      <td class="fe-amount">${fmtKRW(item.amount)}</td>
+      <td class="fe-memo">${escapeHtml(item.memo || "—")}</td>
+      <td class="compact-actions">
+        <button type="button" class="mini danger" data-fe-del="${escapeHtml(item.id)}">삭제</button>
       </td>
     `;
     tr.querySelector("[data-fe-del]")?.addEventListener("click", () => {
       ensureFixedMonthMaterialized(mk);
       setFixedList(mk, (fixedExpenses[mk] || []).filter(x => x.id !== item.id));
       save();
-      try{ driveUploadLocal(true); }catch(_){ }
+      try{ driveUploadLocal(true); }catch(_){}
       renderFixedExpenses();
-    renderPointFarming();
+      renderPointFarming();
       render();
     });
     tb.appendChild(tr);
@@ -2046,30 +1916,30 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     row.className = "row";
     row.setAttribute("draggable", "true");
     row.innerHTML = `
-      <div class="drag" title="드래그로 순서 변경">⋮⋮</div>
-      <input class="where" type="text" placeholder="예치처" value="${escapeHtml(h.where ?? "")}">
+      <div class="drag" title="드래그하여 순서 변경" aria-label="드래그하여 순서 변경">⋮⋮</div>
+      <input class="where" type="text" placeholder="예치처" aria-label="예치처" value="${escapeHtml(h.where ?? "")}">
       <div class="ccy-toggle" role="group" aria-label="통화 선택">
         <button type="button" class="ccy-btn" data-ccy="KRW" aria-pressed="true">KRW</button>
         <button type="button" class="ccy-btn" data-ccy="USDT" aria-pressed="false">USDT</button>
         <input class="ccy" type="hidden" value="KRW">
       </div>
-      <input class="amt" type="number" inputmode="decimal" placeholder="금액" value="${Number.isFinite(h.amount) ? String(h.amount) : (h.amount ?? "")}">
-      <button class="mini add" title="추가">추가</button>
-      <button class="mini danger rm" title="삭제">삭제</button>
+      <input class="amt" type="number" inputmode="decimal" step="any" placeholder="금액" aria-label="금액" value="${Number.isFinite(h.amount) ? String(h.amount) : (h.amount ?? "")}">
+      <button type="button" class="mini add" title="아래에 행 추가" aria-label="아래에 행 추가">+</button>
+      <button type="button" class="mini danger rm" title="행 삭제" aria-label="행 삭제">−</button>
     `;
-    // Init currency toggle
-const ccyHidden = row.querySelector(".ccy");
-const ccyBtns = Array.from(row.querySelectorAll(".ccy-btn"));
-const initCcy = (h.ccy === "USDT" ? "USDT" : "KRW");
-if (ccyHidden) ccyHidden.value = initCcy;
-ccyBtns.forEach(btn => {
-  const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
-  const active = (v === initCcy);
-  btn.classList.toggle("active", active);
-  btn.setAttribute("aria-pressed", active ? "true" : "false");
-});
-// Prevent accidental drag from form controls
-    row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable","false"));
+
+    const ccyHidden = row.querySelector(".ccy");
+    const ccyBtns = Array.from(row.querySelectorAll(".ccy-btn"));
+    const initCcy = (h.ccy === "USDT" ? "USDT" : "KRW");
+    if (ccyHidden) ccyHidden.value = initCcy;
+    ccyBtns.forEach(btn => {
+      const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+      const active = (v === initCcy);
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+
+    row.querySelectorAll("input, select, button").forEach(el => el.setAttribute("draggable", "false"));
 
     const onChange = async () => {
       updateFxVisibility();
@@ -2078,24 +1948,24 @@ ccyBtns.forEach(btn => {
       updateTotalPreview();
     };
     row.querySelector(".where").addEventListener("input", onChange);
-    // Toggle handlers
-ccyBtns.forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
-    if (ccyHidden) ccyHidden.value = v;
-    ccyBtns.forEach(b => {
-      const bv = b.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
-      const active = (bv === v);
-      b.classList.toggle("active", active);
-      b.setAttribute("aria-pressed", active ? "true" : "false");
+    ccyBtns.forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const v = btn.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+        if (ccyHidden) ccyHidden.value = v;
+        ccyBtns.forEach(b => {
+          const bv = b.getAttribute("data-ccy") === "USDT" ? "USDT" : "KRW";
+          const active = (bv === v);
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+        await onChange();
+      });
     });
-    await onChange();
-  });
-});
-row.querySelector(".amt").addEventListener("input", onChange);
+    row.querySelector(".amt").addEventListener("input", onChange);
 
     row.querySelector(".rm").addEventListener("click", () => {
       row.remove();
+      if (!holdingsEl.querySelector(".row")) holdingsEl.appendChild(holdingRowTemplate({}));
       updateFxVisibility();
       updateTotalPreview();
     });
@@ -2103,11 +1973,11 @@ row.querySelector(".amt").addEventListener("input", onChange);
     row.querySelector(".add").addEventListener("click", () => {
       const newRow = holdingRowTemplate({});
       row.insertAdjacentElement("afterend", newRow);
+      newRow.querySelector(".where")?.focus();
       updateFxVisibility();
       updateTotalPreview();
     });
 
-    // Drag & Drop reorder (only start when dragging the handle)
     let canDrag = false;
     row.querySelector(".drag").addEventListener("pointerdown", () => { canDrag = true; });
     row.querySelector(".drag").addEventListener("pointerup", () => { canDrag = false; });
@@ -2126,8 +1996,7 @@ row.querySelector(".amt").addEventListener("input", onChange);
 
     row.addEventListener("dragend", () => {
       row.classList.remove("dragging");
-      const targets = holdingsEl.querySelectorAll(".drop-target");
-      targets.forEach(t => t.classList.remove("drop-target"));
+      holdingsEl.querySelectorAll(".drop-target").forEach(t => t.classList.remove("drop-target"));
       holdingsEl.__dragging = null;
       updateFxVisibility();
       updateTotalPreview();
@@ -2141,24 +2010,16 @@ row.querySelector(".amt").addEventListener("input", onChange);
       row.classList.add("drop-target");
     });
 
-    row.addEventListener("dragleave", () => {
-      row.classList.remove("drop-target");
-    });
+    row.addEventListener("dragleave", () => row.classList.remove("drop-target"));
 
     row.addEventListener("drop", (ev) => {
       ev.preventDefault();
       row.classList.remove("drop-target");
       const dragging = holdingsEl.__dragging;
       if (!dragging || dragging === row) return;
-
       const rect = row.getBoundingClientRect();
       const before = (ev.clientY - rect.top) < (rect.height / 2);
-
-      if (before){
-        holdingsEl.insertBefore(dragging, row);
-      } else {
-        holdingsEl.insertBefore(dragging, row.nextSibling);
-      }
+      holdingsEl.insertBefore(dragging, before ? row : row.nextSibling);
       updateFxVisibility();
       updateTotalPreview();
     });
@@ -2337,6 +2198,8 @@ const installChartResizeObservers = () => {
 
     try{
       Chart.defaults.animation = false;
+      Chart.defaults.color = "#778196";
+      Chart.defaults.font.family = 'Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
       chartTotal = new Chart(c1, {
         type: "line",
@@ -2345,23 +2208,26 @@ const installChartResizeObservers = () => {
           datasets: [{
             label: "총액",
             data: [],
-            tension: 0.25,
-            pointRadius: 2,
+            tension: 0.32,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
             fill: true,
-            backgroundColor: "rgba(165,180,252,.25)",
-            borderColor: "rgba(129,140,248,.9)"
+            backgroundColor: "rgba(79,70,229,.08)",
+            borderColor: "#4f46e5"
           }] 
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
           plugins: {
             legend: { display: false },
             tooltip: { callbacks: { label: (ctx) => ` ${fmtKRW(ctx.parsed.y)}` } }
           },
           scales: {
-            x: { ticks: { maxRotation: 0, autoSkip: true } },
-            y: { ticks: { callback: (v) => shortKRW(v) } }
+            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            y: { border: { display: false }, grid: { color: "rgba(148,163,184,.16)" }, ticks: { callback: (v) => shortKRW(v) } }
           }
         }
       });
@@ -2373,23 +2239,26 @@ const installChartResizeObservers = () => {
           datasets: [{
             label: "누적 변동률",
             data: [],
-            tension: 0.25,
-            pointRadius: 2,
+            tension: 0.32,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
             fill: true,
-            backgroundColor: "rgba(153,246,228,.25)",
-            borderColor: "rgba(16,185,129,.85)"
+            backgroundColor: "rgba(5,150,105,.08)",
+            borderColor: "#059669"
           }] 
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
           plugins: {
             legend: { display: false },
             tooltip: { callbacks: { label: (ctx) => ` ${fmtPct(ctx.parsed.y)}` } }
           },
           scales: {
-            x: { ticks: { maxRotation: 0, autoSkip: true } },
-            y: { ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
+            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            y: { border: { display: false }, grid: { color: "rgba(148,163,184,.16)" }, ticks: { callback: (v) => `${(v*100).toFixed(0)}%` } }
           }
         }
       });
@@ -2440,16 +2309,21 @@ const installChartResizeObservers = () => {
 
   const updateKpis = () => {
     const asc = sortEntriesAsc(entries);
-    const latest = asc[asc.length-1];
+    const latest = asc[asc.length - 1];
     const first = asc[0];
+    const countEl = $("recordCount");
+    if (countEl) countEl.textContent = `${asc.length}건`;
 
     if (!latest){
       $("kpiTotal").textContent = "—";
-      $("kpiDate").textContent = "—";
+      $("kpiDate").textContent = "기록 없음";
       $("kpiDelta").textContent = "—";
-      $("kpiDeltaPct").textContent = "—";
+      $("kpiDeltaPct").textContent = "비교할 기록 없음";
       $("kpiCum").textContent = "—";
-      $("kpiCumPct").textContent = "—";
+      $("kpiCumPct").textContent = "첫 기록 대비";
+      $("kpiFixed").textContent = "—";
+      $("kpiFixedSub").textContent = "최근 기록 월 기준";
+      ["kpiDelta", "kpiDeltaPct", "kpiCum", "kpiCumPct"].forEach(id => { $(id).style.color = ""; });
       return;
     }
 
@@ -2457,38 +2331,35 @@ const installChartResizeObservers = () => {
     $("kpiDate").textContent = latest.date;
 
     if (asc.length >= 2){
-      const prev = asc[asc.length-2];
+      const prev = asc[asc.length - 2];
       const delta = latest.totalKrw - prev.totalKrw;
       const pct = prev.totalKrw ? delta / prev.totalKrw : NaN;
-
-      $("kpiDelta").textContent = (delta>=0 ? "+" : "") + fmtKRW(delta).replace("원","") + "원";
+      $("kpiDelta").textContent = `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}`;
       $("kpiDeltaPct").textContent = fmtPct(pct);
-
       $("kpiDelta").style.color = delta >= 0 ? "var(--ok)" : "var(--bad)";
       $("kpiDeltaPct").style.color = delta >= 0 ? "var(--ok)" : "var(--bad)";
     } else {
       $("kpiDelta").textContent = "—";
-      $("kpiDeltaPct").textContent = "—";
+      $("kpiDeltaPct").textContent = "비교할 기록 없음";
       $("kpiDelta").style.color = "";
       $("kpiDeltaPct").style.color = "";
     }
 
     const cum = latest.totalKrw - first.totalKrw;
     const cumPct = first.totalKrw ? cum / first.totalKrw : NaN;
-    $("kpiCum").textContent = (cum>=0 ? "+" : "") + fmtKRW(cum).replace("원","") + "원";
+    $("kpiCum").textContent = `${cum >= 0 ? "+" : ""}${fmtKRW(cum)}`;
     $("kpiCumPct").textContent = fmtPct(cumPct);
     $("kpiCum").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
     $("kpiCumPct").style.color = cum >= 0 ? "var(--ok)" : "var(--bad)";
 
-const mk = monthKeyFromDate(latest.date);
-const ftotal = sumFixed(mk);
-$("kpiFixed").textContent = ftotal ? fmtKRW(ftotal) : "—";
-if (ftotal && Number.isFinite(latest.totalKrw)){
-  $("kpiFixedSub").textContent = `총액 대비 ${(ftotal/latest.totalKrw*100).toFixed(1)}% · ${(latest.totalKrw/ftotal).toFixed(1)}개월`;
-} else {
-  $("kpiFixedSub").textContent = mk ? `${mk} 기준` : "—";
-}
-
+    const mk = monthKeyFromDate(latest.date);
+    const ftotal = sumFixed(mk);
+    $("kpiFixed").textContent = ftotal ? fmtKRW(ftotal) : "—";
+    if (ftotal && Number.isFinite(latest.totalKrw)){
+      $("kpiFixedSub").textContent = `총액 대비 ${(ftotal / latest.totalKrw * 100).toFixed(1)}% · ${(latest.totalKrw / ftotal).toFixed(1)}개월`;
+    } else {
+      $("kpiFixedSub").textContent = mk ? `${mk} 기준` : "최근 기록 월 기준";
+    }
   };
 
   const renderTable = () => {
@@ -2497,16 +2368,13 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
     const desc = sortEntriesDesc(entries);
 
     if (!desc.length){
-      tb.innerHTML = `<tr><td colspan="9" class="muted">데이터 없음</td></tr>`;
+      tb.innerHTML = '<tr><td colspan="9" class="empty-cell dashboard-empty">아직 저장된 투자 기록이 없습니다.</td></tr>';
       return;
     }
 
     const firstTotal = asc[0].totalKrw;
-
     const byDatePrev = new Map();
-    for (let i=0;i<asc.length;i++){
-      byDatePrev.set(asc[i].date, i>0 ? asc[i-1] : null);
-    }
+    for (let i = 0; i < asc.length; i++) byDatePrev.set(asc[i].date, i > 0 ? asc[i - 1] : null);
 
     tb.innerHTML = "";
     for (const e of desc){
@@ -2514,35 +2382,32 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
       const delta = prev ? (e.totalKrw - prev.totalKrw) : NaN;
       const deltaPct = prev && prev.totalKrw ? delta / prev.totalKrw : NaN;
       const cumPct = firstTotal ? (e.totalKrw / firstTotal - 1) : NaN;
-
-      const fxTxt = (Number.isFinite(e.fx) ? fmtFX(e.fx) : "—");
-
+      const fxTxt = Number.isFinite(e.fx) ? fmtFX(e.fx) : "—";
       const mk = monthKeyFromDate(e.date);
       const feMonth = sumFixed(mk);
       const feMonthTxt = feMonth ? fmtKRW(feMonth) : "—";
-
       const holdingsDetails = buildHoldingsDetails(e);
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><span class="pill">${e.date}</span></td>
-        <td class="num">${fmtKRW(e.totalKrw)}</td>
-        <td class="num">${Number.isFinite(delta) ? `${delta>=0?"+":""}${fmtKRW(delta).replace("원","")}원` : "—"}</td>
-        <td class="num">${fmtPct(deltaPct)}</td>
+        <td class="date-cell"><span class="pill">${escapeHtml(e.date)}</span></td>
+        <td class="num strong-cell">${fmtKRW(e.totalKrw)}</td>
+        <td class="num delta-cell">${Number.isFinite(delta) ? `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}` : "—"}</td>
+        <td class="num delta-pct-cell">${fmtPct(deltaPct)}</td>
         <td class="num">${fmtPct(cumPct)}</td>
         <td class="num">${fxTxt}</td>
-        <td>${holdingsDetails}</td>
-        <td class="num">${feMonthTxt}</td>
-        <td class="num">
+        <td class="holdings-cell">${holdingsDetails}</td>
+        <td class="num expense-cell">${feMonthTxt}</td>
+        <td class="actions-cell">
           <div class="inline-actions">
-            <button class="mini" data-act="edit" data-date="${e.date}">편집</button>
-            <button class="mini danger" data-act="del" data-date="${e.date}">삭제</button>
+            <button type="button" class="mini" data-act="edit" data-date="${escapeHtml(e.date)}">편집</button>
+            <button type="button" class="mini danger" data-act="del" data-date="${escapeHtml(e.date)}">삭제</button>
           </div>
         </td>
       `;
-      // colorize delta
-      const deltaCell = tr.children[2];
-      const pctCell = tr.children[3];
+
+      const deltaCell = tr.querySelector(".delta-cell");
+      const pctCell = tr.querySelector(".delta-pct-cell");
       if (Number.isFinite(delta)){
         const good = delta >= 0;
         deltaCell.style.color = good ? "var(--ok)" : "var(--bad)";
@@ -2557,26 +2422,29 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
 
   const buildHoldingsDetails = (entry) => {
     const n = entry.holdings?.length ?? 0;
-    if (!n) return `<span class="muted">—</span>`;
+    if (!n) return '<span class="muted">—</span>';
+
     const lines = entry.holdings.map(h => {
       const where = escapeHtml(h.where || "미지정");
       const amt = Number.isFinite(h.amount) ? h.amount : 0;
       if (h.ccy === "KRW"){
-        return `<li><span class="h-where">${where}</span>: <span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">KRW</span></li>`;
+        return `<li><span class="h-where">${where}</span><span class="h-value"><span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">KRW</span></span></li>`;
       }
       const krw = Number.isFinite(entry.fx) ? (amt * entry.fx) : NaN;
-      const krwTxt = Number.isFinite(krw) ? ` (≈ ${escapeHtml(nf.format(Math.round(krw)))} KRW)` : "";
-      const approx = krwTxt ? ` <span class="h-krwapprox">${krwTxt}</span>` : "";
-      return `<li><span class="h-where">${where}</span>: <span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">USDT</span>${approx}</li>`;
+      const approx = Number.isFinite(krw) ? `<span class="h-krwapprox">≈ ${escapeHtml(nf.format(Math.round(krw)))} KRW</span>` : "";
+      return `<li><span class="h-where">${where}</span><span class="h-value"><span><span class="h-amt">${escapeHtml(nf.format(amt))}</span> <span class="h-ccy">USDT</span></span>${approx}</span></li>`;
     }).join("");
 
     return `
       <details>
-        <summary>${n}개 항목</summary>
+        <summary>${n}개 자산</summary>
         <ul class="holdings-list">${lines}</ul>
       </details>
     `;
   };
+
+  /*****************
+   * CRUD
 
   /*****************
    * CRUD
@@ -2593,7 +2461,9 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
     entries = entries.filter(e => e.date !== dateStr);
     if (editDate === dateStr) resetForm();
     save();
+    try{ driveUploadLocal(true); }catch(_){}
     render();
+    renderFixedExpenses();
   };
 
   const startEdit = (dateStr) => {
@@ -2811,13 +2681,19 @@ if (ftotal && Number.isFinite(latest.totalKrw)){
 
 
   $("clearAllBtn").addEventListener("click", () => {
-    if (!confirm("전체 데이터를 삭제할까요?")) return;
+    if (!confirm("투자 기록, 고정지출, 포인트 파밍 데이터를 모두 삭제할까요?")) return;
     entries = [];
     fxCache = {};
+    fixedExpenses = {};
+    pointFarming = {};
     editDate = null;
-    localStorage.removeItem(STORAGE_KEY_V4);
+    save();
+    try{ driveUploadLocal(true); }catch(_){}
     render();
+    renderFixedExpenses();
+    renderPointFarming();
     resetForm();
+    toast("전체 데이터 삭제 완료", "ok");
   });
 
   
