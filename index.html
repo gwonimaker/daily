@@ -1294,19 +1294,44 @@ summary { color: #5557dc; }
 }
 .tablewrap tbody .month-group-row:first-child td { border-top: 0; }
 .tablewrap tbody .month-group-row:hover td { background: #f7f8fc !important; }
+.month-group-toggle {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  background: transparent;
+  box-shadow: none;
+  text-align: inherit;
+}
+.month-group-toggle:hover,
+.month-group-toggle:active {
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+}
+.month-group-toggle:focus-visible {
+  outline: 2px solid rgba(85,87,220,.45);
+  outline-offset: -2px;
+}
 .month-group-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  min-height: 42px;
-  padding: 9px 12px;
+  justify-content: flex-start;
+  gap: 18px;
+  min-height: 46px;
+  padding: 10px 13px;
   background: linear-gradient(90deg, rgba(85,87,220,.09), rgba(85,87,220,.025) 48%, rgba(255,255,255,.65));
+}
+.month-group-toggle:hover .month-group-bar {
+  background: linear-gradient(90deg, rgba(85,87,220,.13), rgba(85,87,220,.04) 48%, rgba(255,255,255,.72));
 }
 .month-group-title {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   color: #272d3d;
   font-size: 11px;
   font-weight: 900;
@@ -1317,37 +1342,36 @@ summary { color: #5557dc; }
   width: 7px;
   height: 7px;
   flex: 0 0 auto;
-  border-radius: 999px;
-  background: #5b5ddd;
-  box-shadow: 0 0 0 4px rgba(91,93,221,.12);
+  margin-left: 2px;
+  border-right: 2px solid #5b5ddd;
+  border-bottom: 2px solid #5b5ddd;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  transition: transform .16s ease;
 }
+.month-group-row.is-open .month-group-title::before { transform: rotate(45deg); }
 .month-group-meta {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: flex-start;
   min-width: 0;
   color: #7c8698;
   font-size: 9.5px;
   font-weight: 700;
   white-space: nowrap;
 }
-.month-group-count {
+.month-group-latest {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  padding: 4px 7px;
-  border: 1px solid rgba(91,93,221,.16);
-  border-radius: 999px;
-  color: #5557dc;
-  background: rgba(255,255,255,.82);
-  font-weight: 900;
+  align-items: baseline;
+  gap: 7px;
 }
+.month-group-latest span { color: #8a93a4; }
 .month-group-latest strong {
-  color: #444d5f;
+  color: #343d50;
+  font-size: 11.5px;
   font-variant-numeric: tabular-nums lining-nums;
 }
+.tablewrap tbody .month-record-row[hidden] { display: none !important; }
 .tablewrap tbody .month-record-row td { border-bottom-color: #edf0f4; }
 .tablewrap tbody .month-record-row.month-group-last td { border-bottom: 0; }
 .day-pill { gap: 5px; min-width: 58px; }
@@ -1365,8 +1389,9 @@ summary { color: #5557dc; }
   font-weight: 900;
 }
 @media (max-width: 680px) {
-  .month-group-bar { align-items: flex-start; flex-direction: column; gap: 5px; }
-  .month-group-meta { width: 100%; justify-content: flex-start; }
+  .month-group-bar { gap: 12px; }
+  .month-group-meta { justify-content: flex-start; }
+  .month-group-latest span { display: none; }
 }
 
 /* Dialogs and feedback */
@@ -1477,7 +1502,7 @@ summary { color: #5557dc; }
 }
 
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=27574"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=8471"></script>
 </head>
 <body>
 
@@ -1748,6 +1773,7 @@ summary { color: #5557dc; }
   let entries = [];
   let editDate = null;
   let fxCache = {};
+  const expandedRecordMonths = new Set();
 
   // Fixed expenses by month: { 'YYYY-MM': [ {id,name,amount,memo} ] }
   let fixedExpenses = {};
@@ -2828,17 +2854,22 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
     for (const group of monthGroups){
       const latestInMonth = group.entries[0];
+      const monthLabel = formatMonthLabel(group.key);
+      const isExpanded = expandedRecordMonths.has(group.key);
+      const recordRows = [];
+
       const groupRow = document.createElement("tr");
-      groupRow.className = "month-group-row";
+      groupRow.className = `month-group-row${isExpanded ? " is-open" : ""}`;
       groupRow.innerHTML = `
         <td colspan="9">
-          <div class="month-group-bar">
-            <div class="month-group-title">${escapeHtml(formatMonthLabel(group.key))}</div>
-            <div class="month-group-meta">
-              <span class="month-group-count">${group.entries.length}건</span>
-              <span class="month-group-latest">최근 총액 <strong>${fmtKRW(latestInMonth.totalKrw)}</strong></span>
-            </div>
-          </div>
+          <button type="button" class="month-group-toggle" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="${escapeHtml(monthLabel)} 기록 ${isExpanded ? "접기" : "펼치기"}">
+            <span class="month-group-bar">
+              <span class="month-group-title">${escapeHtml(monthLabel)}</span>
+              <span class="month-group-meta">
+                <span class="month-group-latest"><span>마지막 기록 총액</span><strong>${fmtKRW(latestInMonth.totalKrw)}</strong></span>
+              </span>
+            </span>
+          </button>
         </td>
       `;
       tb.appendChild(groupRow);
@@ -2857,6 +2888,8 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
         const tr = document.createElement("tr");
         tr.className = `month-record-row${index === group.entries.length - 1 ? " month-group-last" : ""}`;
+        tr.dataset.monthGroup = group.key;
+        tr.hidden = !isExpanded;
         tr.innerHTML = `
           <td class="date-cell">
             <span class="pill day-pill" title="${escapeHtml(e.date)}" aria-label="${escapeHtml(e.date)}">
@@ -2889,7 +2922,20 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
         tr.querySelector('[data-act="edit"]').addEventListener("click", () => startEdit(e.date));
         tr.querySelector('[data-act="del"]').addEventListener("click", () => deleteEntry(e.date));
+        recordRows.push(tr);
         tb.appendChild(tr);
+      });
+
+      const toggle = groupRow.querySelector(".month-group-toggle");
+      toggle.addEventListener("click", () => {
+        const willExpand = !expandedRecordMonths.has(group.key);
+        if (willExpand) expandedRecordMonths.add(group.key);
+        else expandedRecordMonths.delete(group.key);
+
+        groupRow.classList.toggle("is-open", willExpand);
+        toggle.setAttribute("aria-expanded", willExpand ? "true" : "false");
+        toggle.setAttribute("aria-label", `${monthLabel} 기록 ${willExpand ? "접기" : "펼치기"}`);
+        recordRows.forEach(row => { row.hidden = !willExpand; });
       });
     }
   };
@@ -3160,6 +3206,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     fxCache = {};
     fixedExpenses = {};
     pointFarming = {};
+    expandedRecordMonths.clear();
     editDate = null;
     save();
     try{ driveUploadLocal(true); }catch(_){}
@@ -3199,6 +3246,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     if (!rebuilt.length) throw new Error("가져올 데이터가 없습니다.");
     entries = sortEntriesAsc(rebuilt);
     fxCache = newFxCache;
+    expandedRecordMonths.clear();
     fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
     pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
     save();
