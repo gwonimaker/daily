@@ -843,6 +843,204 @@ details[open] summary::before { transform: rotate(90deg); }
   .point-dates { grid-template-columns: minmax(0, 1fr); }
   .total-preview { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* === 자동 환율 + 접이식 입력 섹션 === */
+.fxline.fxline-auto {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+.fx-auto-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid rgba(91, 92, 240, .18);
+  border-radius: 11px;
+  color: #5859c7;
+  background: #f1f1ff;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+.fx-status {
+  min-height: 15px;
+  margin-top: 6px;
+  color: #8a93a5;
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.fx-status.is-loading { color: #6567cf; }
+.fx-status.is-success { color: var(--ok); }
+.fx-status.is-error { color: var(--bad); }
+.fx-status.is-manual { color: #667185; }
+
+.monthly-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 11px 0;
+  padding: 11px 13px;
+  border: 1px solid #e8eaf0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92);
+}
+.monthly-context-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.monthly-context-title {
+  color: var(--text);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.monthly-context-sub {
+  color: #8a93a5;
+  font-size: 8.8px;
+  line-height: 1.35;
+}
+.monthly-context .month-picker {
+  width: 138px;
+  min-height: 38px;
+  flex: 0 0 auto;
+}
+
+.collapsible-section {
+  width: 100%;
+  max-width: none;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.collapsible-section > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+.collapsible-section > summary::-webkit-details-marker { display: none; }
+.collapsible-section > summary::marker { content: ""; }
+.collapsible-section > summary::before,
+.collapsible-section[open] > summary::before {
+  content: none !important;
+  display: none !important;
+  transform: none !important;
+}
+.section-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 66px;
+  padding: 13px 14px;
+  outline: none;
+  transition: background .16s ease, box-shadow .16s ease;
+}
+.section-summary:hover { background: rgba(91, 92, 240, .035); }
+.section-summary:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(91, 92, 240, .34);
+}
+.collapsible-section[open] > .section-summary {
+  background: rgba(255, 255, 255, .52);
+}
+.section-summary-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.section-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+.section-summary-title::before {
+  content: counter(form-step, decimal-leading-zero);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 23px;
+  border: 1px solid #e0e3ee;
+  border-radius: 8px;
+  color: #6567cf;
+  background: #f1f1ff;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .02em;
+}
+.section-summary-description {
+  overflow: hidden;
+  color: #8a93a5;
+  font-size: 9.2px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.section-summary-side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.section-summary-meta {
+  max-width: 148px;
+  overflow: hidden;
+  padding: 5px 8px;
+  border: 1px solid #e7e9f0;
+  border-radius: 999px;
+  color: #667185;
+  background: rgba(255, 255, 255, .86);
+  font-size: 8.8px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.section-chevron {
+  width: 8px;
+  height: 8px;
+  margin: -4px 3px 0 0;
+  border-right: 2px solid #81899a;
+  border-bottom: 2px solid #81899a;
+  transform: rotate(45deg);
+  transition: transform .18s ease, margin .18s ease;
+}
+.collapsible-section[open] .section-chevron {
+  margin-top: 4px;
+  transform: rotate(225deg);
+}
+.section-content {
+  padding: 14px;
+  border-top: 1px solid #eceef3;
+  background: rgba(255, 255, 255, .38);
+}
+.section-content > :first-child { margin-top: 0; }
+.section-content .compact-table { margin-top: 10px; }
+
+@media (max-width: 560px) {
+  .monthly-context {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .monthly-context .month-picker { width: 100%; }
+  .section-summary { min-height: 62px; padding: 12px; }
+  .section-summary-description { display: none; }
+  .section-summary-meta { max-width: 112px; }
+  .section-content { padding: 12px; }
+  .fx-auto-badge { padding: 0 8px; }
+}
+
 </style>
 
 <style id="visual-refresh-v2">
@@ -1612,7 +1810,7 @@ summary { color: #5557dc; }
   }
 }
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=12942"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=16680"></script>
 </head>
 <body>
 
@@ -1622,7 +1820,7 @@ summary { color: #5557dc; }
       <div class="brand-mark" aria-hidden="true">₩</div>
       <div class="brand-copy">
         <h1 class="title">투자 기록</h1>
-        <p class="brand-subtitle">자산 · 고정지출 · 포인트 파밍 통합 관리</p>
+        <p class="brand-subtitle">자산 · 포인트 파밍 · 고정지출 통합 관리</p>
       </div>
     </div>
     <div class="top-actions" aria-label="데이터 관리">
@@ -1654,7 +1852,7 @@ summary { color: #5557dc; }
           <div class="section-heading">
             <div>
               <h3>기준 정보</h3>
-              <p>기록 날짜와 USDT 환산 기준을 선택합니다.</p>
+              <p>USDT 환율은 선택한 날짜 기준으로 자동 조회됩니다.</p>
             </div>
           </div>
           <div class="field-grid">
@@ -1664,104 +1862,128 @@ summary { color: #5557dc; }
             </div>
             <div class="field" id="fxField">
               <label for="fx">USDT/KRW 종가</label>
-              <div class="fxline">
-                <input id="fx" type="number" inputmode="decimal" step="any" placeholder="자동 조회" />
-                <button type="button" id="fxBtn" class="mini">조회</button>
+              <div class="fxline fxline-auto">
+                <input id="fx" type="number" inputmode="decimal" step="any" placeholder="USDT 선택 시 자동 조회" />
+                <span class="fx-auto-badge" aria-hidden="true">AUTO</span>
               </div>
+              <div id="fxStatus" class="fx-status" aria-live="polite">USDT 선택 시 자동으로 불러옵니다.</div>
             </div>
           </div>
         </section>
 
-        <section class="form-section">
-          <div class="section-heading">
-            <div>
-              <h3>예치 현황</h3>
-              <p>예치처, 통화, 금액을 입력합니다. 순서는 드래그로 변경할 수 있습니다.</p>
+        <div class="monthly-context" role="group" aria-labelledby="monthlyContextLabel">
+          <div class="monthly-context-copy">
+            <span id="monthlyContextLabel" class="monthly-context-title">월별 관리 기준</span>
+            <span class="monthly-context-sub">포인트 파밍과 고정지출에 함께 적용됩니다.</span>
+          </div>
+          <input id="fxm" class="month-picker" type="month" aria-label="월별 관리 기준" />
+        </div>
+
+        <details class="form-section collapsible-section" id="holdingsSection">
+          <summary class="section-summary">
+            <span class="section-summary-copy">
+              <span class="section-summary-title">예치 현황</span>
+              <span class="section-summary-description">예치처, 통화, 금액을 입력합니다.</span>
+            </span>
+            <span class="section-summary-side">
+              <span id="holdingsSummaryMeta" class="section-summary-meta">입력 없음</span>
+              <span class="section-chevron" aria-hidden="true"></span>
+            </span>
+          </summary>
+          <div class="section-content">
+            <div id="holdings" class="holdings-editor"></div>
+            <div class="total-preview">
+              <div>
+                <div class="label">총 평가금액</div>
+                <div class="helper" id="totalSub"></div>
+              </div>
+              <div id="totalPreview" class="value">—</div>
             </div>
           </div>
-          <div id="holdings" class="holdings-editor"></div>
-          <div class="total-preview">
-            <div>
-              <div class="label">총 평가금액</div>
-              <div class="helper" id="totalSub"></div>
+        </details>
+
+        <details class="form-section collapsible-section" id="pointFarmingSection">
+          <summary class="section-summary">
+            <span class="section-summary-copy">
+              <span class="section-summary-title">포인트 파밍</span>
+              <span class="section-summary-description">프로토콜별 진행 기간과 남은 일수를 확인합니다.</span>
+            </span>
+            <span class="section-summary-side">
+              <span id="pointSummaryMeta" class="section-summary-meta">0개 일정</span>
+              <span class="section-chevron" aria-hidden="true"></span>
+            </span>
+          </summary>
+          <div class="section-content">
+            <div class="point-form">
+              <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" aria-label="포인트 파밍 프로토콜" />
+              <div class="point-dates">
+                <input id="pfStart" type="date" aria-label="포인트 파밍 시작일" />
+                <input id="pfEnd" type="date" aria-label="포인트 파밍 종료일" />
+              </div>
+              <button type="button" id="pfAddBtn" class="mini secondary">추가</button>
             </div>
-            <div id="totalPreview" class="value">—</div>
-          </div>
-        </section>
 
-        <section class="form-section">
-          <div class="section-heading">
-            <div>
-              <h3>고정지출</h3>
-              <p>선택한 월의 반복 지출을 관리합니다.</p>
-            </div>
-            <input id="fxm" class="month-picker" type="month" aria-label="고정지출 기준 월" />
-          </div>
-
-          <div class="expense-form">
-            <input id="feName" type="text" placeholder="항목명 (예: 월세)" aria-label="고정지출 항목명" />
-            <input id="feAmt" type="number" inputmode="numeric" min="0" placeholder="금액 (KRW)" aria-label="고정지출 금액" />
-            <input id="feMemo" type="text" placeholder="메모 (선택)" aria-label="고정지출 메모" />
-            <button type="button" id="feAddBtn" class="mini secondary">추가</button>
-          </div>
-
-          <div class="total-preview expense-preview">
-            <div>
-              <div class="label">선택 월 고정지출</div>
-              <div class="helper" id="feSub">—</div>
-            </div>
-            <div id="feTotal" class="value">—</div>
-          </div>
-
-          <div class="compact-table fixed-expenses-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>항목</th>
-                  <th>금액</th>
-                  <th>메모</th>
-                  <th>관리</th>
-                </tr>
-              </thead>
-              <tbody id="feTbody">
-                <tr><td colspan="4" class="empty-cell">등록된 고정지출이 없습니다.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="form-section">
-          <div class="section-heading">
-            <div>
-              <h3>포인트 파밍</h3>
-              <p>프로토콜별 진행 기간과 남은 일수를 확인합니다.</p>
+            <div class="compact-table point-farming-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>프로토콜</th>
+                    <th>기간</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="pfTbody">
+                  <tr><td colspan="3" class="empty-cell">등록된 파밍 일정이 없습니다.</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
+        </details>
 
-          <div class="point-form">
-            <input id="pfProtocol" type="text" placeholder="프로토콜 (예: EigenLayer)" aria-label="포인트 파밍 프로토콜" />
-            <div class="point-dates">
-              <input id="pfStart" type="date" aria-label="포인트 파밍 시작일" />
-              <input id="pfEnd" type="date" aria-label="포인트 파밍 종료일" />
+        <details class="form-section collapsible-section" id="fixedExpensesSection">
+          <summary class="section-summary">
+            <span class="section-summary-copy">
+              <span class="section-summary-title">고정지출</span>
+              <span class="section-summary-description">선택한 월의 반복 지출을 관리합니다.</span>
+            </span>
+            <span class="section-summary-side">
+              <span id="fixedSummaryMeta" class="section-summary-meta">0원</span>
+              <span class="section-chevron" aria-hidden="true"></span>
+            </span>
+          </summary>
+          <div class="section-content">
+            <div class="expense-form">
+              <input id="feName" type="text" placeholder="항목명 (예: 월세)" aria-label="고정지출 항목명" />
+              <input id="feAmt" type="number" inputmode="numeric" min="0" placeholder="금액 (KRW)" aria-label="고정지출 금액" />
+              <input id="feMemo" type="text" placeholder="메모 (선택)" aria-label="고정지출 메모" />
+              <button type="button" id="feAddBtn" class="mini secondary">추가</button>
             </div>
-            <button type="button" id="pfAddBtn" class="mini secondary">추가</button>
-          </div>
 
-          <div class="compact-table point-farming-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>프로토콜</th>
-                  <th>기간</th>
-                  <th>관리</th>
-                </tr>
-              </thead>
-              <tbody id="pfTbody">
-                <tr><td colspan="3" class="empty-cell">등록된 파밍 일정이 없습니다.</td></tr>
-              </tbody>
-            </table>
+            <div class="total-preview expense-preview">
+              <div>
+                <div class="label">선택 월 고정지출</div>
+                <div class="helper" id="feSub">—</div>
+              </div>
+              <div id="feTotal" class="value">—</div>
+            </div>
+
+            <div class="compact-table fixed-expenses-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>항목</th>
+                    <th>금액</th>
+                    <th>메모</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="feTbody">
+                  <tr><td colspan="4" class="empty-cell">등록된 고정지출이 없습니다.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </section>
+        </details>
       </div>
 
       <div class="panel-footer">
@@ -1908,6 +2130,14 @@ summary { color: #5557dc; }
    * Utils
    *****************/
   const $ = (id) => document.getElementById(id);
+
+  const setFxStatus = (message, kind = "") => {
+    const el = $("fxStatus");
+    if (!el) return;
+    el.textContent = String(message || "");
+    el.classList.remove("is-loading", "is-success", "is-error", "is-manual");
+    if (kind) el.classList.add(`is-${kind}`);
+  };
 
   const toast = (msg, kind="ok", ms=2200) => {
   const el = $("toast");
@@ -2382,6 +2612,10 @@ const renderPointFarming = () => {
     return getEnd(a.period) - getEnd(b.period);
   });
 
+  if ($("pointSummaryMeta")) {
+    $("pointSummaryMeta").textContent = `${list.length}개 일정`;
+  }
+
   if (!list.length){
     tb.innerHTML = '<tr><td colspan="3" class="empty-cell">등록된 파밍 일정이 없습니다.</td></tr>';
     return;
@@ -2516,6 +2750,9 @@ const renderFixedExpenses = () => {
   const list = getFixedListEffective(mk);
   const total = sumFixed(mk);
   totalEl.textContent = fmtKRW(total);
+  if ($("fixedSummaryMeta")) {
+    $("fixedSummaryMeta").textContent = total > 0 ? fmtKRW(total) : "0원";
+  }
 
   const latest = sortEntriesAsc(entries).slice(-1)[0];
   const latestTotal = latest?.totalKrw;
@@ -2612,40 +2849,51 @@ const addFixedExpense = () => {
 // Auto FX: fetch once per date when USDT exists and fx is missing
 let fxFetchInFlight = null;
 const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
-  if (!dateStr) return null;
+  if (!dateStr) {
+    setFxStatus("날짜를 선택하면 자동으로 조회합니다.");
+    return null;
+  }
 
-  // Only if current UI has USDT rows
-  if (!uiHasUsdtRow()) return null;
+  if (!uiHasUsdtRow()) {
+    setFxStatus("USDT 선택 시 자동으로 불러옵니다.");
+    return null;
+  }
 
-  // If already have cached fx and not forcing, just use it
   if (!force && Number.isFinite(fxCache[dateStr])) {
-    if (!$("fx").value) $("fx").value = String(fxCache[dateStr]);
+    $("fx").value = String(fxCache[dateStr]);
+    setFxStatus(`${dateStr} 저장 종가를 적용했습니다.`, "success");
+    updateTotalPreview();
     return fxCache[dateStr];
   }
 
-  // If user typed a manual fx, respect it (and cache it)
   const manual = parseNum($("fx").value);
-  if (!force && Number.isFinite(manual) && manual > 0){
+  if (!force && Number.isFinite(manual) && manual > 0) {
     fxCache[dateStr] = manual;
+    setFxStatus("직접 입력한 환율을 적용합니다.", "manual");
     return manual;
   }
 
-  // Avoid duplicate calls
-  if (fxFetchInFlight && fxFetchInFlight.dateStr === dateStr) return fxFetchInFlight.promise;
+  if (fxFetchInFlight && fxFetchInFlight.dateStr === dateStr) {
+    return fxFetchInFlight.promise;
+  }
+
+  setFxStatus(`${dateStr} 종가를 자동 조회 중입니다…`, "loading");
+  $("fx").placeholder = "자동 조회 중…";
 
   const p = (async () => {
-    try{
-      $("fxBtn").disabled = true;
+    try {
       const fx = await getUpbitUsdtKrwClose(dateStr);
       fxCache[dateStr] = fx;
       $("fx").value = String(fx);
+      $("fx").placeholder = "USDT 선택 시 자동 조회";
+      setFxStatus(`${dateStr} 종가 자동 조회 완료`, "success");
       updateTotalPreview();
       return fx;
-    }catch(_){
-      // Keep quiet; user can still enter manually
+    } catch (err) {
+      $("fx").placeholder = "자동 조회 실패 · 직접 입력 가능";
+      setFxStatus("자동 조회에 실패했습니다. 환율을 직접 입력할 수 있습니다.", "error");
       return null;
-    }finally{
-      $("fxBtn").disabled = false;
+    } finally {
       fxFetchInFlight = null;
     }
   })();
@@ -2813,7 +3061,11 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
   const updateFxVisibility = () => {
     const need = uiHasUsdtRow();
     $("fxField").classList.toggle("hidden", !need);
-    if (!need) $("fx").value = "";
+    if (!need) {
+      $("fx").value = "";
+      $("fx").placeholder = "USDT 선택 시 자동 조회";
+      setFxStatus("USDT 선택 시 자동으로 불러옵니다.");
+    }
   };
 
   /*****************
@@ -2846,12 +3098,14 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
       el.textContent = "—";
       el.classList.remove("bad");
       sub.textContent = "";
+      if ($("holdingsSummaryMeta")) $("holdingsSummaryMeta").textContent = "입력 없음";
       return;
     }
     if (needFx && !Number.isFinite(fx)) {
       el.textContent = "환율 필요";
       el.classList.add("bad");
       sub.textContent = dateStr ? "USDT 포함" : "날짜 선택";
+      if ($("holdingsSummaryMeta")) $("holdingsSummaryMeta").textContent = `${holdings.length}개 · 환율 대기`;
       return;
     }
     el.textContent = fmtKRW(total);
@@ -2859,6 +3113,9 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
     if (needFx) sub.textContent = `USDT/KRW: ${fmtFX(fx)}`;
     else sub.textContent = "";
+    if ($("holdingsSummaryMeta")) {
+      $("holdingsSummaryMeta").textContent = `${holdings.length}개 · ${fmtKRW(total)}`;
+    }
   };
 
   /*****************
@@ -3287,22 +3544,20 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
    * Handlers
    *****************/
 
-  $("fxBtn").addEventListener("click", async () => {
-    const dateStr = $("date").value;
-    if (!dateStr) return;
-    await ensureFxForDateIfNeeded(dateStr, true);
-  });
-
   $("date").addEventListener("change", async () => {
-    // If cached fx exists for date, auto-fill.
     const d = $("date").value;
-    if (Number.isFinite(fxCache[d])) $("fx").value = String(fxCache[d]);
+    // Never carry the previous date's close into the newly selected date.
+    $("fx").value = Number.isFinite(fxCache[d]) ? String(fxCache[d]) : "";
     updateFxVisibility();
     await ensureFxForDateIfNeeded(d, false);
     updateTotalPreview();
   });
 
-  $("fx").addEventListener("input", updateTotalPreview);
+  $("fx").addEventListener("input", () => {
+    const value = parseNum($("fx").value);
+    if (Number.isFinite(value) && value > 0) setFxStatus("직접 입력한 환율을 적용합니다.", "manual");
+    updateTotalPreview();
+  });
 
   $("saveBtn").addEventListener("click", async () => {
     try{
@@ -3324,7 +3579,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
   $("cancelEditBtn").addEventListener("click", resetForm);
   $("resetFormBtn").addEventListener("click", resetForm);
-  $("prevBtn").addEventListener("click", () => {
+  $("prevBtn").addEventListener("click", async () => {
     const dateStr = $("date").value;
     if (!dateStr) return;
     const asc = sortEntriesAsc(entries);
@@ -3342,6 +3597,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     const cached = fxCache[dateStr];
     $("fx").value = Number.isFinite(cached) ? String(cached) : "";
     updateFxVisibility();
+    await ensureFxForDateIfNeeded(dateStr, false);
     updateTotalPreview();
     toast(`불러옴: ${prev.date}`, "ok");
   });
