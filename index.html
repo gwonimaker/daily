@@ -2096,7 +2096,7 @@ summary { color: #5557dc; }
 
 </style>
 
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=50585"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=58378"></script>
 </head>
 <body>
 
@@ -2400,6 +2400,9 @@ summary { color: #5557dc; }
    * }
    */
   let entries = [];
+  // The date of the record most recently saved or edited.
+  // Older data without this field falls back to the latest record date.
+  let lastSavedEntryDate = "";
   let editDate = null;
   let fxCache = {};
   const expandedRecordMonths = new Set();
@@ -2678,7 +2681,7 @@ const autoDriveBootstrap = async () => {
     try{ return await res.json(); }catch(_){ return {}; }
   };
 
-  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming });
+  const buildDrivePayload = () => ({ version: 4, savedAt: new Date().toISOString(), entries, lastSavedEntryDate, fxCache, fixedExpenses, pointFarming });
 
   const driveUploadLocal = async (silent=false) => {
     if (!driveCfg.enabled) return false;
@@ -3126,6 +3129,18 @@ const addFixedExpense = () => {
 
   const sortEntriesAsc = (arr) => arr.slice().sort((a,b)=> (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   const sortEntriesDesc = (arr) => arr.slice().sort((a,b)=> (a.date > b.date ? -1 : a.date < b.date ? 1 : 0));
+
+  const getLatestSavedEntry = () => {
+    if (!entries.length) return null;
+
+    if (lastSavedEntryDate){
+      const saved = entries.find(e => e.date === lastSavedEntryDate);
+      if (saved) return saved;
+    }
+
+    // Compatibility fallback for existing data created before save-order tracking.
+    return sortEntriesAsc(entries).slice(-1)[0] || null;
+  };
 
   /*****************
    * FX (Upbit USDT/KRW close)
@@ -3690,6 +3705,9 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
   const deleteEntry = (dateStr) => {
     if (!confirm(`${dateStr} 기록을 삭제할까요?`)) return;
     entries = entries.filter(e => e.date !== dateStr);
+    if (lastSavedEntryDate === dateStr){
+      lastSavedEntryDate = sortEntriesAsc(entries).slice(-1)[0]?.date || "";
+    }
     if (editDate === dateStr) resetForm();
     save();
     try{ driveUploadLocal(true); }catch(_){}
@@ -3753,7 +3771,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
    * Persistence + Migration
    *****************/
   const save = () => {
-    const payload = { version: 4, savedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming };
+    const payload = { version: 4, savedAt: new Date().toISOString(), entries, lastSavedEntryDate, fxCache, fixedExpenses, pointFarming };
     localStorage.setItem(STORAGE_KEY_V4, JSON.stringify(payload));
   };
 
@@ -3780,6 +3798,10 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
       pointFarming = (obj.pointFarming && typeof obj.pointFarming === "object") ? obj.pointFarming : {};
       entries = sortEntriesAsc(entries);
+      const storedLastSavedDate = typeof obj.lastSavedEntryDate === "string" ? obj.lastSavedEntryDate : "";
+      lastSavedEntryDate = entries.some(e => e.date === storedLastSavedDate)
+        ? storedLastSavedDate
+        : (entries.slice(-1)[0]?.date || "");
       return true;
     }catch(_){
       return false;
@@ -3836,6 +3858,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
         if (migrated.length){
           entries = sortEntriesAsc(migrated);
+          lastSavedEntryDate = entries.slice(-1)[0]?.date || "";
           fxCache = newFxCache;
           fixedExpenses = {};
           pointFarming = {};
@@ -3871,6 +3894,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
       $("saveBtn").disabled = true;
       const entry = await buildEntryFromForm();
       upsertEntry(entry);
+      lastSavedEntryDate = entry.date;
       save();
       // Drive auto-save (best effort)
       try{ await driveUploadLocal(true); }catch(e){ toast("Drive 저장 실패(연결 필요)", "bad", 2600); }
@@ -3889,30 +3913,30 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
   $("prevBtn").addEventListener("click", async () => {
     const dateStr = $("date").value;
     if (!dateStr) return;
-    const asc = sortEntriesAsc(entries);
-    let prev = null;
-    for (const e of asc){
-      if (e.date < dateStr) prev = e;
-      else break;
-    }
-    if (!prev){
-      toast("이전 기록 없음", "bad");
+
+    const latestSaved = getLatestSavedEntry();
+    if (!latestSaved){
+      toast("저장된 기록 없음", "bad");
       return;
     }
-    setHoldingsToUI(prev.holdings);
-    // Do not copy previous day's fx; today's fx will be auto-fetched on save if needed.
+
+    // Keep the currently selected input date and copy only the latest saved holdings.
+    setHoldingsToUI(latestSaved.holdings);
+
+    // Never reuse the source record's FX close for the current input date.
     const cached = fxCache[dateStr];
     $("fx").value = Number.isFinite(cached) ? String(cached) : "";
     updateFxVisibility();
     await ensureFxForDateIfNeeded(dateStr, false);
     updateTotalPreview();
-    toast(`불러옴: ${prev.date}`, "ok");
+    toast(`최근 저장 기록 불러옴: ${latestSaved.date}`, "ok");
   });
 
 
   $("clearAllBtn").addEventListener("click", () => {
     if (!confirm("투자 기록, 고정지출, 포인트 파밍 데이터를 모두 삭제할까요?")) return;
     entries = [];
+    lastSavedEntryDate = "";
     fxCache = {};
     fixedExpenses = {};
     pointFarming = {};
@@ -3955,6 +3979,10 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
     if (!rebuilt.length) throw new Error("가져올 데이터가 없습니다.");
     entries = sortEntriesAsc(rebuilt);
+    const importedLastSavedDate = typeof obj.lastSavedEntryDate === "string" ? obj.lastSavedEntryDate : "";
+    lastSavedEntryDate = entries.some(e => e.date === importedLastSavedDate)
+      ? importedLastSavedDate
+      : (entries.slice(-1)[0]?.date || "");
     fxCache = newFxCache;
     expandedRecordMonths.clear();
     fixedExpenses = (obj.fixedExpenses && typeof obj.fixedExpenses === "object") ? obj.fixedExpenses : {};
@@ -3967,7 +3995,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
   };
 
 $("exportBtn").addEventListener("click", () => {
-    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, fxCache, fixedExpenses, pointFarming };
+    const payload = { version: 4, exportedAt: new Date().toISOString(), entries, lastSavedEntryDate, fxCache, fixedExpenses, pointFarming };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
