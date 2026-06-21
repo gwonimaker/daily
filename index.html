@@ -1354,6 +1354,7 @@ summary { color: #5557dc; }
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 9px;
   min-width: 0;
   color: #7c8698;
   font-size: 9.5px;
@@ -1370,6 +1371,41 @@ summary { color: #5557dc; }
   color: #343d50;
   font-size: 11.5px;
   font-variant-numeric: tabular-nums lining-nums;
+}
+.month-group-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+  padding: 4px 8px;
+  border: 1px solid #e1e5eb;
+  border-radius: 999px;
+  color: #707b8e;
+  background: rgba(255,255,255,.78);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.month-group-change .change-label {
+  color: inherit;
+  opacity: .72;
+  font-weight: 800;
+}
+.month-group-change.up {
+  border-color: rgba(5,150,105,.20);
+  color: #087a58;
+  background: rgba(16,185,129,.09);
+}
+.month-group-change.down {
+  border-color: rgba(220,38,38,.18);
+  color: #bd3030;
+  background: rgba(239,68,68,.08);
+}
+.month-group-change.flat,
+.month-group-change.base {
+  color: #687386;
+  background: rgba(148,163,184,.10);
 }
 .tablewrap tbody .month-record-row[hidden] { display: none !important; }
 .tablewrap tbody .month-record-row td { border-bottom-color: #edf0f4; }
@@ -1390,8 +1426,10 @@ summary { color: #5557dc; }
 }
 @media (max-width: 680px) {
   .month-group-bar { gap: 12px; }
-  .month-group-meta { justify-content: flex-start; }
-  .month-group-latest span { display: none; }
+  .month-group-meta { justify-content: flex-start; gap: 7px; }
+  .month-group-latest span,
+  .month-group-change .change-label { display: none; }
+  .month-group-change { padding: 4px 7px; }
 }
 
 /* Dialogs and feedback */
@@ -1502,7 +1540,7 @@ summary { color: #5557dc; }
 }
 
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=8471"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=9250"></script>
 </head>
 <body>
 
@@ -2850,11 +2888,44 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
       group.entries.push(entry);
     }
 
+    const monthlyLatestEntry = new Map();
+    for (const entry of asc) monthlyLatestEntry.set(monthKeyFromDate(entry.date), entry);
+
+    const monthKeysAsc = Array.from(monthlyLatestEntry.keys()).sort();
+    const monthChangeByKey = new Map();
+    monthKeysAsc.forEach((key, index) => {
+      const currentTotal = Number(monthlyLatestEntry.get(key)?.totalKrw);
+      const previousKey = index > 0 ? monthKeysAsc[index - 1] : "";
+      const previousTotal = previousKey ? Number(monthlyLatestEntry.get(previousKey)?.totalKrw) : NaN;
+      const delta = Number.isFinite(currentTotal) && Number.isFinite(previousTotal)
+        ? currentTotal - previousTotal
+        : NaN;
+      const pct = Number.isFinite(delta) && previousTotal !== 0
+        ? delta / previousTotal
+        : NaN;
+      monthChangeByKey.set(key, { pct, delta, previousKey });
+    });
+
     tb.innerHTML = "";
 
     for (const group of monthGroups){
       const latestInMonth = group.entries[0];
       const monthLabel = formatMonthLabel(group.key);
+      const changeInfo = monthChangeByKey.get(group.key) || { pct: NaN, delta: NaN, previousKey: "" };
+      const monthPct = changeInfo.pct;
+      const changeClass = !Number.isFinite(monthPct)
+        ? "base"
+        : monthPct > 0
+          ? "up"
+          : monthPct < 0
+            ? "down"
+            : "flat";
+      const changeText = Number.isFinite(monthPct)
+        ? `${monthPct > 0 ? "+" : ""}${fmtPct(monthPct)}`
+        : "기준 월";
+      const changeTitle = changeInfo.previousKey
+        ? `${formatMonthLabel(changeInfo.previousKey)} 마지막 총액 대비 ${changeText} (${changeInfo.delta >= 0 ? "+" : ""}${fmtKRW(changeInfo.delta)})`
+        : "비교할 이전 기록 월 없음";
       const isExpanded = expandedRecordMonths.has(group.key);
       const recordRows = [];
 
@@ -2867,6 +2938,10 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
               <span class="month-group-title">${escapeHtml(monthLabel)}</span>
               <span class="month-group-meta">
                 <span class="month-group-latest"><span>마지막 기록 총액</span><strong>${fmtKRW(latestInMonth.totalKrw)}</strong></span>
+                <span class="month-group-change ${changeClass}" title="${escapeHtml(changeTitle)}">
+                  <span class="change-label">직전 기록 월 대비</span>
+                  <strong>${escapeHtml(changeText)}</strong>
+                </span>
               </span>
             </span>
           </button>
