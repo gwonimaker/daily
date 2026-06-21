@@ -2023,9 +2023,80 @@ summary { color: #5557dc; }
   margin-right: auto;
 }
 
+
+
+/* === Final alignment: USDT/KRW + holdings ===
+   Both header labels and row summaries share the exact center axis of their colgroup column. */
+.tablewrap thead th.fx-header,
+.tablewrap tbody .month-record-row > td.fx-cell,
+.tablewrap thead th.holdings-header,
+.tablewrap tbody .month-record-row > td.holdings-cell {
+  text-align: center !important;
+}
+
+.tablewrap thead th.fx-header,
+.tablewrap tbody .month-record-row > td.fx-cell,
+.tablewrap thead th.holdings-header,
+.tablewrap tbody .month-record-row > td.holdings-cell {
+  padding-left: 11px !important;
+  padding-right: 11px !important;
+}
+
+.tablewrap tbody .month-record-row > td.fx-cell {
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+}
+
+/* Remove the generic details width constraint that made the holdings summary sit off-axis. */
+.tablewrap tbody .month-record-row > td.holdings-cell > details {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+.tablewrap tbody .month-record-row > td.holdings-cell > details > summary {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 24px;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  text-align: center !important;
+}
+
+/* Keep the disclosure chevron out of the text flow, so it cannot push the label sideways. */
+.tablewrap tbody .month-record-row > td.holdings-cell > details > summary::before {
+  position: absolute !important;
+  left: 2px !important;
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translateY(-50%) !important;
+}
+.tablewrap tbody .month-record-row > td.holdings-cell > details[open] > summary::before {
+  transform: translateY(-50%) rotate(90deg) !important;
+}
+
+.tablewrap tbody .month-record-row .holdings-summary-text {
+  display: block;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Expanded asset lines stay inside the holdings column without changing its alignment. */
+.tablewrap tbody .month-record-row > td.holdings-cell .holdings-list {
+  width: 100% !important;
+  margin: 8px 0 0 !important;
+  text-align: left !important;
+}
+
 </style>
 
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=47954"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=50585"></script>
 </head>
 <body>
 
@@ -2266,8 +2337,8 @@ summary { color: #5557dc; }
                   <th class="num" style="text-align:center !important;">직전 대비</th>
                   <th class="num" style="text-align:center !important;">변동률</th>
                   <th class="num" style="text-align:center !important;">누적 변동률</th>
-                  <th class="num">USDT/KRW</th>
-                  <th>예치 현황</th>
+                  <th class="num fx-header">USDT/KRW</th>
+                  <th class="holdings-header">예치 현황</th>
                   <th class="num">월 고정지출</th>
                   <th style="text-align:center;">관리</th>
                 </tr>
@@ -3541,7 +3612,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
           <td class="num delta-cell">${Number.isFinite(delta) ? `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}` : "—"}</td>
           <td class="num delta-pct-cell">${fmtPct(deltaPct)}</td>
           <td class="num">${fmtPct(cumPct)}</td>
-          <td class="num">${fxTxt}</td>
+          <td class="num fx-cell">${fxTxt}</td>
           <td class="holdings-cell">${holdingsDetails}</td>
           <td class="num expense-cell">${feMonthTxt}</td>
           <td class="actions-cell">
@@ -3597,7 +3668,7 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
 
     return `
       <details>
-        <summary>${n}개 자산</summary>
+        <summary><span class="holdings-summary-text">${n}개 자산</span></summary>
         <ul class="holdings-list">${lines}</ul>
       </details>
     `;
