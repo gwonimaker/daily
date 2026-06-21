@@ -2094,9 +2094,55 @@ summary { color: #5557dc; }
   text-align: left !important;
 }
 
+
+/* === Requested update: fixed expense summary red + expanded record delta notes === */
+#fixedSummaryMeta {
+  color: var(--bad) !important;
+  border-color: rgba(228, 61, 79, .26) !important;
+  background: linear-gradient(180deg, rgba(255, 245, 246, .98), rgba(255, 235, 238, .94)) !important;
+}
+#fixedSummaryMeta::before {
+  box-shadow: 0 0 0 4px rgba(228, 61, 79, .13) !important;
+}
+
+.value-with-note {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  line-height: 1.08;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.value-with-note.inline {
+  flex-direction: row;
+  gap: 5px;
+}
+.change-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ok);
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+}
+.cum-pct-cell .change-note {
+  padding: 2px 6px;
+  border: 1px solid rgba(5, 150, 105, .18);
+  border-radius: 999px;
+  background: rgba(5, 150, 105, .07);
+}
+.fx-cell .change-note {
+  color: #087b62;
+}
+
+
 </style>
 
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=58378"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=61141"></script>
 </head>
 <body>
 
@@ -3517,6 +3563,12 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
       const weekday = dayNames[new Date(Date.UTC(year, month - 1, day)).getUTCDay()] || "";
       return { day: `${day}일`, weekday };
     };
+    const fmtPctPointDelta = (p) => Number.isFinite(p)
+      ? `${p >= 0 ? "+" : ""}${(p * 100).toFixed(2)}%p`
+      : "";
+    const positiveNote = (text) => text
+      ? `<span class="change-note">(${escapeHtml(text)})</span>`
+      : "";
 
     const monthGroups = [];
     for (const entry of desc){
@@ -3605,7 +3657,12 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
         const delta = prev ? (e.totalKrw - prev.totalKrw) : NaN;
         const deltaPct = prev && prev.totalKrw ? delta / prev.totalKrw : NaN;
         const cumPct = firstTotal ? (e.totalKrw / firstTotal - 1) : NaN;
+        const prevCumPct = prev && firstTotal ? (prev.totalKrw / firstTotal - 1) : NaN;
+        const cumPctDelta = Number.isFinite(cumPct) && Number.isFinite(prevCumPct) ? (cumPct - prevCumPct) : NaN;
+        const cumPctNote = cumPctDelta > 0 ? positiveNote(fmtPctPointDelta(cumPctDelta)) : "";
         const fxTxt = Number.isFinite(e.fx) ? fmtFX(e.fx) : "—";
+        const fxDelta = prev && Number.isFinite(e.fx) && Number.isFinite(prev.fx) ? (e.fx - prev.fx) : NaN;
+        const fxNote = fxDelta > 0 ? positiveNote(`+${fmtFX(fxDelta)}`) : "";
         const mk = monthKeyFromDate(e.date);
         const feMonth = sumFixed(mk);
         const feMonthTxt = feMonth ? fmtKRW(feMonth) : "—";
@@ -3626,8 +3683,8 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
           <td class="num strong-cell">${fmtKRW(e.totalKrw)}</td>
           <td class="num delta-cell">${Number.isFinite(delta) ? `${delta >= 0 ? "+" : ""}${fmtKRW(delta)}` : "—"}</td>
           <td class="num delta-pct-cell">${fmtPct(deltaPct)}</td>
-          <td class="num">${fmtPct(cumPct)}</td>
-          <td class="num fx-cell">${fxTxt}</td>
+          <td class="num cum-pct-cell"><span class="value-with-note">${fmtPct(cumPct)}${cumPctNote}</span></td>
+          <td class="num fx-cell"><span class="value-with-note inline">${fxTxt}${fxNote}</span></td>
           <td class="holdings-cell">${holdingsDetails}</td>
           <td class="num expense-cell">${feMonthTxt}</td>
           <td class="actions-cell">
