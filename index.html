@@ -1539,8 +1539,80 @@ summary { color: #5557dc; }
   .dashboard-body > .records-card { min-height: 430px; }
 }
 
+
+
+/* === 예치 현황 행 너비 보정: 입력 패널 내부에서만 표시 === */
+.holdings-editor{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+}
+.holdings-editor .row{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  grid-template-columns:26px minmax(0,1.2fr) 82px minmax(0,.9fr) 30px 30px;
+  grid-template-areas:"drag where ccy amount add remove";
+  gap:5px;
+  padding:7px;
+}
+.holdings-editor .row > *{
+  min-width:0;
+  max-width:100%;
+}
+.holdings-editor .row input{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  padding-left:8px;
+  padding-right:8px;
+}
+.holdings-editor .ccy-toggle{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.holdings-editor .ccy-toggle .ccy-btn{
+  min-width:0;
+  padding-left:2px;
+  padding-right:2px;
+  font-size:9px;
+}
+.holdings-editor .row .add,
+.holdings-editor .row .rm{
+  width:30px;
+  min-width:30px;
+  max-width:30px;
+  min-height:32px;
+}
+
+@media (max-width:560px){
+  .holdings-editor{ overflow:visible; }
+  .holdings-editor .row{
+    grid-template-columns:27px minmax(0,1fr) 34px;
+    grid-template-areas:
+      "drag where remove"
+      ". ccy add"
+      ". amount amount";
+    gap:6px;
+    padding:8px;
+  }
+  .holdings-editor .row .add,
+  .holdings-editor .row .rm{
+    width:34px;
+    min-width:34px;
+    max-width:34px;
+    min-height:34px;
+  }
+  .holdings-editor .ccy-toggle .ccy-btn{
+    padding-left:6px;
+    padding-right:6px;
+    font-size:9.5px;
+  }
+}
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=9250"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=12942"></script>
 </head>
 <body>
 
