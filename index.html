@@ -1811,7 +1811,7 @@ summary { color: #5557dc; }
   }
 }
 </style>
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=21422"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=22289"></script>
 </head>
 <body>
 
@@ -3578,40 +3578,29 @@ const ensureFxForDateIfNeeded = async (dateStr, force=false) => {
     }
   });
 
-  const loadPreviousEntryIntoForm = async ({ showToast = true } = {}) => {
+  $("cancelEditBtn").addEventListener("click", resetForm);
+  $("resetFormBtn").addEventListener("click", resetForm);
+  $("prevBtn").addEventListener("click", async () => {
     const dateStr = $("date").value;
-    if (!dateStr) return false;
-
+    if (!dateStr) return;
     const asc = sortEntriesAsc(entries);
     let prev = null;
     for (const e of asc){
       if (e.date < dateStr) prev = e;
       else break;
     }
-
     if (!prev){
-      if (showToast) toast("이전 기록 없음", "bad");
-      return false;
+      toast("이전 기록 없음", "bad");
+      return;
     }
-
-    // Keep the selected date (normally today), but copy the latest prior holdings.
     setHoldingsToUI(prev.holdings);
-
-    // Never copy the previous record's FX rate. Use today's cache or fetch today's close.
+    // Do not copy previous day's fx; today's fx will be auto-fetched on save if needed.
     const cached = fxCache[dateStr];
     $("fx").value = Number.isFinite(cached) ? String(cached) : "";
     updateFxVisibility();
     await ensureFxForDateIfNeeded(dateStr, false);
     updateTotalPreview();
-
-    if (showToast) toast(`불러옴: ${prev.date}`, "ok");
-    return true;
-  };
-
-  $("cancelEditBtn").addEventListener("click", resetForm);
-  $("resetFormBtn").addEventListener("click", resetForm);
-  $("prevBtn").addEventListener("click", async () => {
-    await loadPreviousEntryIntoForm({ showToast: true });
+    toast(`불러옴: ${prev.date}`, "ok");
   });
 
 
@@ -3732,21 +3721,17 @@ const init = async () => {
     await ensureFxForDateIfNeeded($("date").value, false);
     updateTotalPreview();
 
-    // Load local data first, then automatically prepare today's form
-    // with the latest record before today.
+    // Load
     const loaded = tryLoadV4() || migrateLegacy();
     if (loaded) render();
     else render(); // empty
     renderFixedExpenses();
-    await loadPreviousEntryIntoForm({ showToast: false });
 
-    // Auto connect + auto load (best effort). Drive import resets the form,
-    // so apply the same automatic previous-record fill once more afterward.
+    // Auto connect + auto load (best effort)
     await autoDriveBootstrap();
     render();
     renderFixedExpenses();
     renderPointFarming();
-    await loadPreviousEntryIntoForm({ showToast: false });
 
   };
 
