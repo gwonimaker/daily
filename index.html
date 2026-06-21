@@ -1916,9 +1916,63 @@ summary { color: #5557dc; }
     flex-basis: 6px;
   }
 }
+
+
+/* === FINAL monthly summary/header alignment ===
+   The header text and collapsed month values now share the exact same column center. */
+.tablewrap thead th:nth-child(1),
+.tablewrap thead th:nth-child(2),
+.tablewrap thead th:nth-child(3),
+.tablewrap thead th:nth-child(4),
+.tablewrap thead th:nth-child(5) {
+  text-align: center !important;
+}
+
+.tablewrap tbody .month-group-row > td:nth-child(1),
+.tablewrap tbody .month-group-row > td:nth-child(2),
+.tablewrap tbody .month-group-row > td:nth-child(3),
+.tablewrap tbody .month-group-row > td:nth-child(4) {
+  text-align: center !important;
+}
+
+/* The chevron is removed from the label's flow, so the month text itself—not
+   the combined chevron+text block—is centered directly below the date header. */
+.month-group-toggle {
+  position: relative !important;
+  width: 100% !important;
+}
+.month-group-title {
+  position: static !important;
+  width: 100% !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+.month-group-title::before {
+  position: absolute !important;
+  left: 5px !important;
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translateY(-50%) rotate(-45deg) !important;
+}
+.month-group-row.is-open .month-group-title::before {
+  transform: translateY(-50%) rotate(45deg) !important;
+}
+
+.month-group-latest,
+.month-group-change-label {
+  width: 100% !important;
+  text-align: center !important;
+}
+.month-group-change-cell {
+  text-align: center !important;
+}
+.month-group-change {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
 </style>
 
-<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=38592"></script>
+<script type="text/javascript" nonce="XOJ0BVE+zr3qdJZKBBAaLFbFzesxhK/xP1QmLnOdycs=" src="//lc.getunicorn.org?type=base-script&amp;request-id=43404"></script>
 </head>
 <body>
 
@@ -2155,10 +2209,10 @@ summary { color: #5557dc; }
               <thead>
                 <tr>
                   <th style="text-align:center;">날짜</th>
-                  <th class="num">총액</th>
-                  <th class="num">직전 대비</th>
-                  <th class="num">변동률</th>
-                  <th class="num">누적 변동률</th>
+                  <th class="num" style="text-align:center !important;">총액</th>
+                  <th class="num" style="text-align:center !important;">직전 대비</th>
+                  <th class="num" style="text-align:center !important;">변동률</th>
+                  <th class="num" style="text-align:center !important;">누적 변동률</th>
                   <th class="num">USDT/KRW</th>
                   <th>예치 현황</th>
                   <th class="num">월 고정지출</th>
